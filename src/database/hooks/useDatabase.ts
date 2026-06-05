@@ -20,6 +20,7 @@ export const useDatabase = (table:string) => {
     setError(null);
     try {
       const result = await create_(table, data);
+      console.log(table,data)
       return result;
     } catch (err: any) {
       setError(err.message);

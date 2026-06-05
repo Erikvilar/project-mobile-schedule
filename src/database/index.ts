@@ -4,6 +4,7 @@ import { User } from './models/User';
 
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import { Profile } from '@/database/models/Profile.ts';
+import { ModelIA } from '@/database/models/ModelIA.ts';
 
 const adapter = new SQLiteAdapter({
   schema: mySchema,
@@ -15,5 +16,5 @@ const adapter = new SQLiteAdapter({
 
 export const database = new Database({
   adapter,
-  modelClasses: [User, Profile],
+  modelClasses: [User, Profile,ModelIA],
 });

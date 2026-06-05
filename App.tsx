@@ -21,6 +21,7 @@ import Routes from "./src/router/routes.app.tsx";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import { useEffect, useState } from 'react';
 import { database } from '@/database';
+import useInitializeIA from '@/MLC/hooks/useInitializeIA.ts';
 
 
 

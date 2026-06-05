@@ -156,6 +156,10 @@ clean-android:
 clean-all: clean clean-db clean-android
 	@echo "[OK] Limpeza completa realizada"
 
+logs:
+	@echo "iniciando logs do aplicativo"
+	@adb logcat | Select-String "ReactNativeJS"
+
 install-and-run: install run-android
 	@echo "[OK] App instalado e rodando"
 
