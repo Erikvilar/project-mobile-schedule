@@ -1,4 +1,4 @@
-import { database } from './index';
+import { database } from '../index.ts';
 
 
 // ============ CREATE ============
@@ -41,6 +41,7 @@ export const readById_ = async (tableName: string, id: string) => {
     return null;
   }
 };
+
 export const existsByQuery_ = async (query: any, table:string): Promise<boolean> => {
   const records = await database.get(table).query(query).fetch();
   return records.length > 0;
@@ -77,9 +78,6 @@ export const update_ = async (tableName: string, id: string, data: any) => {
   }
 };
 
-
-
-
 // ============ DELETE ============
 export const delete_ = async (tableName: string, id: string) => {
   try {
@@ -95,8 +93,7 @@ export const delete_ = async (tableName: string, id: string) => {
   }
 };
 
-
-    export const dropDatabase_ = async () => {
+export const dropDatabase_ = async () => {
       try {
         console.log('⚠️  Deletando banco de dados completo...');
 

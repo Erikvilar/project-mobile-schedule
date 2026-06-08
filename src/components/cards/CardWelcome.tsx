@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import useUsers from '@/hooks/useUsers.ts';
 
-const CardWelcome = ({ showUserName }: { showUserName: () => string }) => {
+const CardWelcome = () => {
   const now = new Date();
+  const { user } = useUsers();
+
 
   const isDayTime = now.getHours() >= 6 && now.getHours() < 18;
+
 
   const dateText = now.toLocaleDateString('pt-BR', {
     weekday: 'long',
@@ -27,7 +31,7 @@ const CardWelcome = ({ showUserName }: { showUserName: () => string }) => {
             color: '#000',
           }}
         >
-          {showUserName()}
+          {user}
         </Text>
 
         <Text

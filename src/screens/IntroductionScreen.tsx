@@ -154,7 +154,7 @@ const IntroductionScreen = ({ navigation }: any) => {
       };
 
       await insertUser(userData);
-      navigation.navigate('Home');
+      navigation.navigate('LoadApp');
     }catch(error){
       console.error('Erro ao salvar:', error);
     }

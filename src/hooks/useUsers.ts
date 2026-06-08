@@ -1,36 +1,15 @@
 
 import { TABLE_USERS } from '@/database/schemas';
-import { useDatabase } from '@/database/hooks/useDatabase.ts';
-import {Q} from "@nozbe/watermelondb";
-import useProfile, { ProfileInterface } from '@/hooks/useProfile.ts';
+import { useEffect, useMemo, useState } from 'react';
+import { UserRepository } from '@/database/repository/UserRepository.ts';
 
 
-export interface UserInterface {
-  id: string;
-  name: string;
-  email: string;
-  age: number;
-  profile?:ProfileInterface;
-}
+
 const useUsers = ()=>{
 
-
-  const {
-    loading,
-    error,
-    create,
-    getAll,
-    getExistsByQuery,
-    dropDatabase,
-    get,
-    update,
-    deleteData,
-  } = useDatabase(TABLE_USERS);
-
-  const {insertProfile}  = useProfile();
-
-
-  const insertUser = async (user: {
+  const repository = useMemo(()=> new UserRepository(), []);
+  const [user,setUser] =useState('');
+  const create = async (user: {
     id: string;
     name: string;
     email: string;
@@ -43,31 +22,28 @@ const useUsers = ()=>{
         return 'Um email existente já esta cadastrado';
       }
 
-      await create(user);
-      await insertProfile(user.profile!);
+      await repository.create(user);
+
     } catch (error) {
       console.log('error: ' + TABLE_USERS, error);
     }
   };
 
   const getExistentUsers = async (value:string,field:string):Promise<boolean | null> => {
-    const users = await getExistsByQuery(
-      'users',
-      Q.where(field, Q.like(`%${value}%`)),
-    );
+    const users = await repository.getExistentUsers(value,field);
     console.log(users);
 return users
 
   };
+
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email.trim());
   };
 
-
   const getCurrentUser = async () => {
     try {
-      const result = await getAll();
+      const result = await repository.getAll();
 
       if (!result.length) {
         return null;
@@ -75,17 +51,22 @@ return users
 
       const { _status, _changed, ...user } = result[0]._raw;
 
-      return user;
+      return user?.name.slice(0, 1)[0].toUpperCase() + user?.name.slice(1);
     } catch (error) {
       console.log(`error: ${TABLE_USERS}`, error);
       return null;
     }
   };
 
+  useEffect(() => {
+    getCurrentUser().then((user)=>{
+      setUser(user)
+    })
+  }, []);
 
   return {
-    insertUser,
-    getCurrentUser,
+    insertUser: create,
+    user,
     validateEmail,
   }
 

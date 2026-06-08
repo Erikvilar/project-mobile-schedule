@@ -3,6 +3,7 @@ import { enableScreens } from 'react-native-screens';
 import HomeScreen from '../screens/HomeScreen.tsx';
 import PresentationScreen from '../screens/PresentationScreen.tsx';
 import IntroductionScreen from "@/screens/IntroductionScreen.tsx";
+import LoadAppScreen from '@/screens/LoadAppScreen.tsx';
 
 enableScreens(true);
 
@@ -33,7 +34,12 @@ const Routes = () => {
         component={PresentationScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="LoadApp"
 
+        component={LoadAppScreen}
+        options={({ route }) => ({ headerShown: false })}
+      />
       <Stack.Screen
         name="Introduction"
         component={IntroductionScreen}
@@ -41,7 +47,7 @@ const Routes = () => {
           headerShown: true,
 
           title: '',
-          headerShadowVisible: false
+          headerShadowVisible: false,
         }}
       />
     </Stack.Navigator>

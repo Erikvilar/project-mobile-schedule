@@ -1,67 +1,39 @@
-import { useDatabase } from '@/database/hooks/useDatabase.ts';
-import { TABLE_MODEL, TABLE_USERS } from '@/database/schemas';
-import { Q } from '@nozbe/watermelondb';
-interface  ModelProps{
-  name:string;
-  prepared:string;
-}
+import { TABLE_MODEL } from '@/database/schemas';
+import { ModelRepository } from '@/database/repository/ModelRepository.ts';
+import { useMemo } from 'react';
+
+
 const useModelIA = ()=>{
-const {
-  loading,
-  error,
-  create,
-  getAll,
-  getExistsByQuery,
-  dropDatabase,
-  get,
-  update,
-  deleteData,
-} = useDatabase(TABLE_MODEL);
+
+
+  const repository = useMemo(() => new ModelRepository(), []);
 
   const insertModel = async (model:any,prepared:string)=>{
     try {
 
-     await create({
-        id:model,
-        name:model,
-        prepared:prepared
-      })
+     await repository.insertModel(model,prepared);
 
     }catch(e){
       console.log(e)
     }
   }
 
-  const getExistentModel = async (value:string):Promise<ModelProps> => {
-    const model = await getExistsByQuery(
-      'model',
-      Q.where('name', Q.like(`%${value}%`)),
-    );
-    return model;
-  };
-
-
   const getCurrentModel = async () => {
     try {
-      const result = await getAll();
-
-      if (!result.length) {
-        return null;
-      }
-
-      const { _status, _changed, ...modelIA } = result[0]._raw;
-
-      return modelIA;
+      return await repository.getCurrentModel();
     } catch (error) {
       console.log(`error: ${TABLE_MODEL}`, error);
       return null;
     }
   };
+
+
 return {
   insertModel,
   getCurrentModel,
-  getExistentModel,
 }
+
+
 }
 
 export default  useModelIA;

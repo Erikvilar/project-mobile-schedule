@@ -21,7 +21,7 @@ import Routes from "./src/router/routes.app.tsx";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import { useEffect, useState } from 'react';
 import { database } from '@/database';
-import useInitializeIA from '@/MLC/hooks/useInitializeIA.ts';
+
 
 
 
@@ -72,9 +72,11 @@ function AppContent() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <NavigationContainer>
-          <Routes />
-        </NavigationContainer>
+
+          <NavigationContainer>
+            <Routes />
+          </NavigationContainer>
+
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

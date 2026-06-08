@@ -10,35 +10,13 @@ import { ActivityIndicator } from 'react-native';
 
 const Dashboard = () => {
 
-  const {getCurrentUser} = useUsers();
-  const {getCurrentProfile} = useProfile();
 
- const [user, setUser] = useState<any | null>(null);
-
- const [profile,setProfile] = useState<any | null>(null);
-
- const [loading, setLoading] = useState<boolean>(false);
-
-
-  useEffect(() => {
-    getCurrentUser().then(user => {
-      setUser(user)
-    });
-    getCurrentProfile().then(profile =>{
-        setProfile(profile)
-    });
-    console.log(user)
-  },[])
-
-const showUserName = ()=>{
-      return  user?.name.slice(0,1)[0].toUpperCase()+user?.name.slice(1)
-}
 
   return (
-    <View style={{ flex: 1, elevation: 1 }}>
+    <View style={{ flex: 1, elevation: 1, paddingTop: 15 }}>
       {/* Header */}
-      <CardWelcome showUserName={showUserName}  />
-      {loading ? <ActivityIndicator size={40} color={"black"} /> : <Chat />}
+      <CardWelcome  />
+      <Chat />
     </View>
   );
 };

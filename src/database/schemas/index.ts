@@ -13,6 +13,7 @@ export const TABLE_PROFILE = 'profile'
 export const TABLE_CONVERSATION = 'conversation';
 export const TABLE_MEMORY = 'memory';
 export const TABLE_MODEL = 'modelIA';
+export const TABLE_MESSAGE = 'message'
 export const mySchema = appSchema({
   version: 3,
   tables: [userSchema,profileSchema,memorySchema,modelSchema, conversationSchema, appConfigSchema],

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, memo } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import useInitializeIA from "@/MLC/hooks/useInitializeIA.ts";
-import useIA from "@/MLC/hooks/useIA.ts";
+import useIA from '@/hooks/useIA.ts';
+import { useMessages } from '@/hooks/useMessages';
+import useUsers from '@/hooks/useUsers.ts';
 
 interface Message {
   id: string;
@@ -18,185 +19,140 @@ interface Message {
 }
 
 
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-}
 
-export default function Chat() {
+
+
+
+
+const ChatMessage = memo(
+  ({ item, isGenerating,thinking }: { item: Message; isGenerating: boolean,thinking:string }) => {
+    const [thinkingPhrase, setThinkingPhrase] = useState('Pensando...');
+
+
+    useEffect(() => {
+
+      setThinkingPhrase(thinking)
+      return () => {
+        console.log('LIMPANDO');
+      };
+    }, [isGenerating, thinking]);
+
+    return (
+      <View
+        style={{
+          alignSelf: item.role === 'user' ? 'flex-end' : 'flex-start',
+          backgroundColor: item.role === 'user' ? '#000' : '#F3F4F6',
+          padding: 12,
+          borderRadius: 16,
+          marginVertical: 4,
+          maxWidth: '80%',
+          minHeight: item.role === 'assistant' && !item.content ? 48 : 'auto',
+          justifyContent: 'center',
+        }}
+      >
+        {item.content ? (
+          <Text style={{ color: item.role === 'user' ? '#FFF' : '#000' }}>
+            {item.content}
+          </Text>
+        ) : item.role === 'assistant' ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <ActivityIndicator
+              color={isGenerating ? '#666' : '#000'}
+              size="small"
+            />
+            <Text
+              style={{
+                color: isGenerating ? '#666' : '#666',
+                fontSize: 14,
+              }}
+            >
+              {thinkingPhrase}
+            </Text>
+          </View>
+        ) : null}
+      </View>
+    );
+  },
+);
+const Chat = () => {
   const flatListRef = useRef<FlatList>(null);
   const modelRef = useRef<any>(null);
 
-  const [loadingModel, setLoadingModel] = useState(true);
+  const [loadingModel, setLoadingModel] = useState(false);
   const [generating, setGenerating] = useState(false);
-const [statusModel,setStatusModel] = useState('')
   const [input, setInput] = useState('');
-  const {initialize,status,loading} = useInitializeIA()
-    const {runGenerate} = useIA();
-  const [messages, setMessages] = useState<Message[]>([
+  const [loadState, setLoadState] = useState('');
+  const { chat,initialize } = useIA();
+  const {user} = useUsers();
+
+
+  const content = "Olá" +user+" meu nome é Seiko e sou sua assistente pessoal.";
+  const { messages, addMessage, updateMessage } = useMessages([
     {
       id: 'welcome',
       role: 'assistant',
-      content: 'Olá! Sou sua IA local.',
+      content:content,
     },
   ]);
 
-  useEffect(() => {
-    const initModel = async () => {
-      try {
-        setLoadingModel(loading);
-        setStatusModel(status)
-        const model= await initialize();
-
-        modelRef.current = model;
 
 
-        console.log('✅ Modelo carregado');
-      } catch (err) {
-        console.error('Erro ao carregar modelo', err);
-      } finally {
-        setLoadingModel(false);
-      }
-    };
-
-    initModel();
-  }, []);
-  useEffect(() => {
-    setStatusModel(status)
-    setLoadingModel(loading)
-  }, [status,loading]);
-
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-
-    if (!modelRef.current) {
-      console.warn('Modelo não carregado');
-      return;
-    }
-
-    if (generating) return;
-
+  const sendMessage = useCallback(async () => {
+    setLoadState("Preparando modelo...")
     const prompt = input.trim();
-
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
       content: prompt,
     };
-
+    setGenerating(true);
+    setLoadState("Iniciando geração da resposta...")
     const assistantId = `${Date.now()}-assistant`;
-
     const assistantMessage: Message = {
       id: assistantId,
       role: 'assistant',
       content: '',
     };
-
-    setMessages(prev => [...prev, userMessage, assistantMessage]);
-
+    setLoadState('Pensando um pouco...');
+    addMessage(userMessage);
+    addMessage(assistantMessage);
     setInput('');
-    setGenerating(true);
+    modelRef.current = await initialize();
 
+    setLoadState('Reformulando resposta...');
     try {
-         console.log(modelRef.current);
-      const response = await runGenerate(modelRef.current, prompt);
+      setLoadState('Pronto!...');
+      await chat(modelRef.current, prompt, chunk => {
+        updateMessage(assistantId, chunk);
+      });
 
-      setMessages(prev =>
-        prev.map(msg =>
-          msg.id === assistantId
-            ? {
-                ...msg,
-                content: response || 'Sem resposta',
-              }
-            : msg,
-        ),
-      );
     } catch (err) {
       console.error('Erro geração:', err);
-
-      setMessages(prev =>
-        prev.map(msg =>
-          msg.id === assistantId
-            ? {
-                ...msg,
-                content: 'Erro ao gerar resposta.',
-              }
-            : msg,
-        ),
-      );
+      updateMessage(assistantId, 'Erro ao gerar resposta.');
     } finally {
       setGenerating(false);
     }
-  };
+  }, [input, generating, addMessage, updateMessage, chat]);
 
-  const renderItem = ({ item }: { item: Message }) => (
-    <View
-      style={{
-        alignSelf: item.role === 'user' ? 'flex-end' : 'flex-start',
-
-        backgroundColor: item.role === 'user' ? '#000' : '#F3F4F6',
-
-        padding: 12,
-        borderRadius: 16,
-        marginVertical: 4,
-        maxWidth: '80%',
-      }}
-    >
-      <Text
-        style={{
-          color: item.role === 'user' ? '#FFF' : '#000',
-        }}
-      >
-        {item.content}
-      </Text>
-    </View>
+  const renderItem = useCallback(
+    ({ item }: { item: Message }) => (
+      <ChatMessage item={item} isGenerating={generating} thinking={loadState}/>
+    ),
+    [generating,loadState],
   );
 
-
-const LoadRender = useCallback(()=>{
-  return loadingModel && (
-    <View
-      style={{
-        padding: 12,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <ActivityIndicator />
-
-      <Text
-        style={{
-          marginLeft: 8,
-        }}
-      >
-        {statusModel}
-      </Text>
-    </View>
-  )
-},[statusModel,loadingModel])
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: '#FFF',
-      }}
-    >
-     <LoadRender/>
+    <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+
 
       <FlatList
         ref={flatListRef}
         data={messages}
         keyExtractor={item => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{
-          padding: 16,
-        }}
+        contentContainerStyle={{ padding: 16 }}
         onContentSizeChange={() => {
-          flatListRef.current?.scrollToEnd({
-            animated: true,
-          });
+          flatListRef.current?.scrollToEnd({ animated: true });
         }}
       />
 
@@ -226,7 +182,6 @@ const LoadRender = useCallback(()=>{
         />
 
         <TouchableOpacity
-          disabled={loadingModel || generating || !input.trim()}
           onPress={sendMessage}
           style={{
             backgroundColor: '#000',
@@ -238,20 +193,13 @@ const LoadRender = useCallback(()=>{
             opacity: loadingModel || generating || !input.trim() ? 0.5 : 1,
           }}
         >
-          {generating ? (
-            <ActivityIndicator color="#FFF" />
-          ) : (
-            <Text
-              style={{
-                color: '#FFF',
-                fontWeight: '600',
-              }}
-            >
-              Enviar
-            </Text>
-          )}
+
+            <Text style={{ color: '#FFF', fontWeight: '600' }}>Enviar</Text>
+
         </TouchableOpacity>
       </View>
     </View>
   );
-}
+};
+
+export default Chat;
