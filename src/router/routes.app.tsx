@@ -18,7 +18,7 @@ const Routes = () => {
 
   return (
     <Stack.Navigator
-      initialRouteName="Home"
+      initialRouteName="LoadApp"
       screenOptions={{
         headerShown: false,
         freezeOnBlur: true,

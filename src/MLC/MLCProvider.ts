@@ -39,9 +39,15 @@ export class MLCProvider {
   }
 
   public async streamChat(
-      model: any,
-      userMessage: string,
-      onChunk?: (text: string) => void,
+    model: any,
+
+    history: Array<{
+      role: string;
+      content: string;
+      createdAt:Date
+    }>,
+    userMessage: string,
+    onChunk?: (text: string) => void,
   ) {
     try {
       console.log('Preparando modelo...');
@@ -61,6 +67,16 @@ export class MLCProvider {
               },
             ],
           },
+          ...history.map(message => ({
+            role: message.role,
+            content: [
+              {
+                type: 'text',
+                text: message.content,
+                createdAt:message.createdAt
+              },
+            ],
+          })),
           {
             role: 'user',
             content: [

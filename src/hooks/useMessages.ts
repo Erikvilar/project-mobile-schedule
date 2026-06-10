@@ -1,5 +1,5 @@
 // hooks/useMessages.ts
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 interface Message {
   id: string;
@@ -24,6 +24,7 @@ export const useMessages = (initialMessages: Message[]) => {
       msg.id === id ? { ...msg, content } : msg,
     );
   }, []);
+
 
   return { messages, addMessage, updateMessage, messagesRef };
 };
