@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import useAnimations from '@/hooks/useAnimations.ts';
 import { Animated, Image, Text, View } from 'react-native';
-import Btn_component from '@/components/buttons/Btn_component.tsx';
+import BtnComponent from '@/components/buttons/BtnComponent.tsx';
 import Icon from 'react-native-vector-icons/Ionicons';
 const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
   const [showImage, setShowImage] = useState(false);
@@ -144,13 +144,13 @@ const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
           transform: [{ scale: scaleAnim }, { translateY: slideAnim }],
         }}
       >
-        <Btn_component
+        <BtnComponent
           text="Galeria"
           variant="primary"
           onPress={openGallery}
           btn_text_type="white"
         />
-        <Btn_component
+        <BtnComponent
           text="Câmera"
           variant="outline"
           onPress={openCamera}
@@ -183,7 +183,7 @@ const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
           }}
         >
           <View style={{ position: 'absolute', top: -100, left: 50 }}>
-            <Btn_component
+            <BtnComponent
               text="Finalizar Cadastro"
               variant="primary"
               onPress={onContinue}

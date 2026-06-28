@@ -1,31 +1,38 @@
-import { mlc, MLCEngine } from '@react-native-ai/mlc';
-import { ModelRepository } from '@/database/repository/ModelRepository.ts';
-import { AgenteService } from '@/MLC/AgenteService.ts';
 
+import { mlc } from '@react-native-ai/mlc';
+import { ModelRepository } from '@/database/repository/ModelRepository';
+import { AgenteService } from '@/MLC/AgenteService';
+import MemoryModule from '@/native/MemoryModule';
+import { Message } from '@/database/models/Messages.ts';
 export const MODEL_DEFAULT = 'Llama-3.2-3B-Instruct';
 
-
-
-
-
+export class MLCProviderError extends Error {
+  constructor(
+    message: string,
+    public readonly cause?: unknown,
+  ) {
+    super(message);
+    this.name = 'MLCProviderError';
+  }
+}
 
 export class MLCProvider {
-  private modelRepository = new ModelRepository();
-  private agente = new AgenteService();
-
-  async init(onProgress?: (percentage: number) => void): Promise<any> {
+  private readonly modelRepository = new ModelRepository();
+  private readonly agente = new AgenteService();
+  private currentReader?: ReadableStreamDefaultReader<any>;
+  public async init(onProgress?: (percentage: number) => void): Promise<any> {
     try {
-      const modelExists = await this.modelRepository.getCurrentModel();
+      const currentModel = await this.modelRepository.getCurrentModel();
 
       const model = mlc.languageModel(MODEL_DEFAULT);
-      if (modelExists?.prepared === 'true') {
+
+      if (currentModel?.prepared === 'true') {
         await model.prepare();
         return model;
       }
 
       await model.download(event => {
         onProgress?.(event.percentage);
-        console.log(event.percentage);
       });
 
       await model.prepare();
@@ -33,28 +40,31 @@ export class MLCProvider {
       await this.modelRepository.insertModel(MODEL_DEFAULT, 'true');
 
       return model;
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      this.handleError('Falha ao inicializar o modelo', error);
     }
   }
+  public async stopGeneration() {
+    try {
+      await this.currentReader?.cancel();
+    } catch {
+      //
+    }
+
+    this.currentReader = undefined;
+  }
+
+
+
 
   public async streamChat(
     model: any,
-
-    history: Array<{
-      role: string;
-      content: string;
-      createdAt:Date
-    }>,
+    history:Message[],
     userMessage: string,
     onChunk?: (text: string) => void,
-  ) {
+  ): Promise<string> {
     try {
-      console.log('Preparando modelo...');
-
       await model.prepare();
-
-      console.log('Iniciando geração');
 
       const response = await model.doStream({
         prompt: [
@@ -73,7 +83,6 @@ export class MLCProvider {
               {
                 type: 'text',
                 text: message.content,
-                createdAt:message.createdAt
               },
             ],
           })),
@@ -82,7 +91,7 @@ export class MLCProvider {
             content: [
               {
                 type: 'text',
-                text: this.agente.buildUserInstruction(userMessage),
+                text: userMessage,
               },
             ],
           },
@@ -95,17 +104,33 @@ export class MLCProvider {
         repetitionPenalty: 1.1,
       });
 
-      const { stream } = response;
-
-      if (!stream) {
-        await model.unload?.();
-        return '';
+      if (!response?.stream) {
+        throw new MLCProviderError(
+          'O modelo não retornou um stream de resposta.',
+        );
       }
 
-      const reader = stream.getReader();
+      return await this.consumeStream(response.stream, onChunk);
+    } catch (error) {
+      this.handleError('Falha ao gerar resposta', error);
+    } finally {
+      await this.safeUnload(model);
+    }
+  }
 
-      let fullText = '';
+  private async consumeStream(
+    stream: ReadableStream<any>,
+    onChunk?: (text: string) => void,
+  ): Promise<string> {
+    const reader = stream.getReader();
 
+    this.currentReader = reader;
+
+    const chunks: string[] = [];
+    let buffer = '';
+    let lastEmit = Date.now();
+
+    try {
       while (true) {
         const { done, value } = await reader.read();
 
@@ -114,27 +139,51 @@ export class MLCProvider {
         }
 
         if (value?.type === 'text-delta') {
-          fullText += value.delta;
-          onChunk?.(fullText);
+          chunks.push(value.delta);
+          buffer += value.delta;
+
+          const now = Date.now();
+
+          if (now - lastEmit > 20) {
+            onChunk?.(buffer);
+            lastEmit = now;
+          }
         }
       }
 
-      console.log('Resposta final:', fullText);
-
-      return fullText;
-    } catch (err) {
-      console.error('streamChat error', err);
-      return '';
+      return chunks.join('').trim();
     } finally {
+      this.currentReader = undefined;
+
       try {
-        console.log('Descarregando modelo...');
+        await reader.cancel();
+      } catch {}
 
-        await model.unload?.();
-
-        console.log('Modelo descarregado');
-      } catch (unloadError) {
-        console.error('Erro ao descarregar modelo', unloadError);
-      }
+      try {
+        MemoryModule.releaseMemory();
+      } catch {}
     }
   }
+
+  private async safeUnload(model: any): Promise<void> {
+    try {
+      await model?.unload?.();
+    } catch {
+      // opcional:
+      // enviar para Crashlytics/Sentry
+    }
+  }
+
+  private handleError(message: string, error: unknown): never {
+    if (error instanceof MLCProviderError) {
+      throw error;
+    }
+
+    if (error instanceof Error) {
+      throw new MLCProviderError(`${message}: ${error.message}`, error);
+    }
+
+    throw new MLCProviderError(message, error);
+  }
 }
+

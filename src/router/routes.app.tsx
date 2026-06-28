@@ -10,7 +10,7 @@ enableScreens(true);
 const Stack = createNativeStackNavigator();
 
 
-export const SCREEN_PRESENTATION = 'Presentation';
+export const SCREEN_PRESENTATION = 'Introduction';
 
 const Routes = () => {
 
@@ -36,7 +36,6 @@ const Routes = () => {
       />
       <Stack.Screen
         name="LoadApp"
-
         component={LoadAppScreen}
         options={({ route }) => ({ headerShown: false })}
       />

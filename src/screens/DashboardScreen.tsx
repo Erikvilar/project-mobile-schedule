@@ -8,12 +8,12 @@ import CardWelcome from "@/components/cards/CardWelcome.tsx";
 
 import { ActivityIndicator } from 'react-native';
 
-const Dashboard = () => {
+const DashboardScreen = () => {
 
 
 
   return (
-    <View style={{ flex: 1, elevation: 1, paddingTop: 15 }}>
+    <View style={{ flex: 1, elevation: 1 }}>
       {/* Header */}
       <CardWelcome  />
       <Chat />
@@ -21,4 +21,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardScreen;

@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Text, View } from 'react-native';
-import Input_component from '@/components/inputs/Input_component.tsx';
+import InputComponent from '@/components/inputs/InputComponent.tsx';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Btn_component from '@/components/buttons/Btn_component.tsx';
+import BtnComponent from '@/components/buttons/BtnComponent.tsx';
 
 const FirstScreen = ({
   user,
@@ -92,7 +92,7 @@ const FirstScreen = ({
       </View>
 
       <View style={{ gap: 16, marginBottom: 30 }}>
-        <Input_component
+        <InputComponent
           value={user}
           setValue={setUser}
           label="Nome completo"
@@ -101,7 +101,7 @@ const FirstScreen = ({
           error={errors.name}
         />
 
-        <Input_component
+        <InputComponent
           value={email}
           setValue={setEmail}
           label="Email"
@@ -115,7 +115,7 @@ const FirstScreen = ({
       </View>
 
       <View style={{ width: '100%' }}>
-        <Btn_component
+        <BtnComponent
           text="Próximo"
           variant="primary"
           onPress={incrementStep}

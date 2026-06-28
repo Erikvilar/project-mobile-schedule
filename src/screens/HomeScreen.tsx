@@ -11,8 +11,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Dashboard from './Dashboard.tsx';
+import DashboardScreen from './DashboardScreen.tsx';
 import SettingsScreen from '@/screens/SettingsScreen.tsx';
+import NotesScreen from "@/screens/NoteScreen.tsx";
 
 interface Tab {
   key: string;
@@ -22,8 +23,9 @@ interface Tab {
   component: React.ReactNode;
 }
 
-// Memoizar Dashboard
-const MemoizedDashboard = memo(Dashboard);
+// Memoizar DashboardScreen
+const MemoizedDashboard = memo(DashboardScreen);
+const MemoizedNote = memo(NotesScreen)
 
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
@@ -71,9 +73,8 @@ const HomeScreen = () => {
       iconFocused: 'menu',
       title: 'Menu',
       component: (
-        <View style={styles.centerContainer}>
-          <Icon name="chatbubbles-outline" size={48} color="#007AFF" />
-        </View>
+
+        <MemoizedNote/>
       ),
     },
     {
@@ -103,7 +104,7 @@ const HomeScreen = () => {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.tabContainer}
-          scrollEnabled={false} // Nunca deixa scroll na tabbar
+          scrollEnabled={false}
         >
           {tabs.map((tab, index) => {
             const isActive = activeTab === index;
@@ -116,7 +117,7 @@ const HomeScreen = () => {
               >
                 <Icon
                   name={isActive ? tab.iconFocused : tab.icon}
-                  size={22}
+                  size={18}
                   color={isActive ? '#000' : '#999'}
                   style={styles.tabIcon}
                 />
@@ -135,11 +136,11 @@ const HomeScreen = () => {
       <ScrollView
         ref={scrollViewRef}
         horizontal
-        pagingEnabled={!isGenerating} // Desabilita paging durante geração
+        pagingEnabled={false} // Desabilita paging durante geração
         scrollEventThrottle={16}
         onScroll={handleScroll}
         showsHorizontalScrollIndicator={false}
-        scrollEnabled={!isGenerating}
+        scrollEnabled={false}
         style={styles.content}
       >
         {tabs.map(tab => (

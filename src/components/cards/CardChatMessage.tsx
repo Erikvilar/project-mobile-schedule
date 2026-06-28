@@ -1,23 +1,26 @@
 import React, { memo, useEffect, useState } from 'react';
 import {Message} from "@/database/models/Messages.ts";
 import {ActivityIndicator, Text, View} from "react-native";
+import CustomSpinner from '@/components/spinner/CustomSpinner.tsx';
 
 const CardChatMessage = memo(
   ({
     item,
     isGenerating,
     thinking,
+    fakeStream
   }: {
     item: Message;
     isGenerating: boolean;
     thinking: string;
+    fakeStream:(value:string,chunk:any)=>void;
   }) => {
     const [thinkingPhrase, setThinkingPhrase] = useState('Pensando...');
 
     useEffect(() => {
       setThinkingPhrase(thinking);
       return () => {
-        console.log('LIMPANDO');
+
       };
     }, [isGenerating, thinking]);
 
@@ -35,21 +38,18 @@ const CardChatMessage = memo(
         }}
       >
         {item.content ? (
-          <Text style={{ color: item.role === 'user' ? '#FFF' : '#000' }}>
+          <Text
+            style={{
+              fontWeight: 500,
+              color: item.role === 'user' ? '#FFF' : '#292828' ,
+            }}
+          >
             {item.content}
           </Text>
         ) : item.role === 'assistant' ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <ActivityIndicator
-              color={isGenerating ? '#666' : '#000'}
-              size="small"
-            />
-            <Text
-              style={{
-                color: isGenerating ? '#666' : '#666',
-                fontSize: 14,
-              }}
-            >
+            <CustomSpinner color={'#292828'} size={14} />
+            <Text style={{ fontWeight: 300, color: '#292828', fontSize: 12 }}>
               {thinkingPhrase}
             </Text>
           </View>

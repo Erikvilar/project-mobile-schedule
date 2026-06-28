@@ -13,7 +13,7 @@ export interface Btn_props {
   onPress?: () => void;
 }
 
-const Btn_component = (props: Btn_props) => {
+const BtnComponent = (props: Btn_props) => {
   const {
     text,
     navigation,
@@ -150,4 +150,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default Btn_component;
+export default BtnComponent;

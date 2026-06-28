@@ -50,7 +50,7 @@ return users
       }
 
       const { _status, _changed, ...user } = result[0]._raw;
-
+      console.log("USUARIO",result[0]._raw)
       return user?.name.slice(0, 1)[0].toUpperCase() + user?.name.slice(1);
     } catch (error) {
       console.log(`error: ${TABLE_USERS}`, error);
@@ -59,9 +59,10 @@ return users
   };
 
   useEffect(() => {
-    getCurrentUser().then((user)=>{
-      setUser(user)
+    getCurrentUser().then((current)=>{
+      setUser(current)
     })
+    console.log("usuario carregado",user)
   }, []);
 
   return {

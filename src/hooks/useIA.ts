@@ -1,18 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { MLCProvider } from '@/MLC/MLCProvider.ts';
-import { isDayTime } from '@/components/cards/CardWelcome.tsx';
-import { useMessages } from '@/hooks/useMessages.ts';
-import useUsers from '@/hooks/useUsers.ts';
-
-console.log('ReadableStream', typeof ReadableStream);
-console.log('WritableStream', typeof WritableStream);
-console.log('TransformStream', typeof TransformStream);
-
-
-
-
-
-
+import { MLCProvider } from '@/MLC/MLCProvider';
+import { CommandService } from '@/MLC/CommandService';
+import { useMessages } from '@/hooks/useMessages';
+import useNote from '@/hooks/useNote';
+import useModelIA from "@/hooks/useModelIA.ts";
 
 interface Message {
   id: string;
@@ -20,104 +11,192 @@ interface Message {
   content: string;
 }
 
+const useIA = () => {
+  const [loading, setLoading] = useState(false);
 
-const useIA: (user: string) => {
-  handlePrompt: (value: string) => void;
-  initialize: () => Promise<any>;
-  prompt: string;
-  loadState: string;
-  generating: boolean;
-  messages: Message[];
-  sendMessage: () => Promise<void>;
-  loading: boolean
-} = (user:string) => {
-  const [loading, setLoading] = useState<boolean>(false);
   const [prompt, setPrompt] = useState('');
+
   const [loadState, setLoadState] = useState('');
-  const mlcProvider = useMemo(() =>  new MLCProvider(), [])
+
   const [generating, setGenerating] = useState(false);
+
+  const [showCommands, setShowCommands] = useState(false);
+
+  const [placeHolderInput, setPlaceHolderInput] = useState(
+    'Digite uma mensagem...',
+  );
+
   const modelRef = useRef<any>(null);
 
+  const mlcProvider = useMemo(() => new MLCProvider(), []);
 
-  const teste = "Erik";
-  console.log("MODELO USER",typeof teste)
-  const content = `${
-    isDayTime ? 'Bom dia' : 'Boa noite'
-  } ${user}, sou Seiko.`;
-console.log(content)
-  const { messages, addMessage, updateMessage } = useMessages([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      content: content,
-    },
-  ]);
+  const commandService = useMemo(() => new CommandService(), []);
 
-  async function initialize() {
-    try {
-      setLoading(true);
-     return await mlcProvider.init();
-    } catch (err) {
-      console.log(err);
-    }finally {
-      setLoading(false);
-    }
-  }
+  const { messages, addMessage, updateMessage } = useMessages();
 
-  const handlePrompt = (value: string) => {
-    setPrompt(value);
+  const { getAllNotes } = useNote();
+  const {getCurrentModel} = useModelIA();
+  const commands = commandService.ListCommands();
+
+  const createMessage = (
+    content: string,
+    role: 'user' | 'assistant',
+  ): Message => ({
+    id: role === 'assistant' ? `${Date.now()}-${role}` : `${Date.now()}`,
+    role,
+    content,
+  });
+
+  const registerHistory = (items: Message[]) => {
+    return items
+      .filter(m => m.content.trim())
+      .slice(-20)
+      .map(m => ({
+        role: m.role,
+        content: m.content,
+        createdAt: new Date().toISOString(),
+      }));
   };
-  async function chat(
-    model: any,
-    history: Array<{
-      role: string;
-      content: string;
-    }>,
-    prompt:string,
-    onChunk?: (text: string) => void,
-  ) {
+
+  const initialize = useCallback(async () => {
     try {
       setLoading(true);
-      return mlcProvider.streamChat(model, history,prompt, onChunk);
-    } catch (err) {
-      console.error('runStream error', err);
-      return '';
+
+      return await mlcProvider.init();
     } finally {
       setLoading(false);
     }
-  }
+  }, [mlcProvider]);
+
+  const stopGeneration = useCallback(async () => {
+    try {
+      await mlcProvider.stopGeneration();
+    } catch {}
+  }, [mlcProvider]);
+
+  const chat = useCallback(
+    async (
+      model: any,
+      history: Message[],
+      text: string,
+      onChunk?: (text: string) => void,
+    ) => {
+      try {
+        setLoading(true);
+
+        return await mlcProvider.streamChat(model, history, text, onChunk);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [mlcProvider],
+  );
+
+  const executeLocalCommand = useCallback(
+    async (command: string): Promise<string> => {
+      switch (command) {
+        case 'note-list': {
+          const notes = await getAllNotes();
+
+          if (!notes.length) {
+            return 'Nenhuma nota encontrada.';
+          }
+
+          return notes
+            .map(
+              (note, index) =>
+                `Claro aqui estão as notas que me pediu:\n
+📌 Título: ${note.title}
+📄 Conteúdo:
+${note.content}`,
+            )
+            .join('\n──────────────────\n');
+        }
+
+        case 'note-create':
+          return 'Criação de nota ainda não implementada.';
+
+        case 'note-delete':
+          return 'Exclusão de nota ainda não implementada.';
+
+        case 'note-read':
+          return 'Leitura de nota ainda não implementada.';
+
+        default:
+          return 'Comando não implementado.';
+      }
+    },
+    [getAllNotes],
+  );
+  const fakeStream = useCallback(
+    async (text: string, onChunk: (value: string) => void) => {
+      let current = '';
+
+      for (const char of text) {
+        current += char;
+
+        onChunk(current);
+
+        await new Promise(resolve => setTimeout(resolve, 5));
+      }
+    },
+    [],
+  );
+
+  const executeCommand = useCallback(
+    async (command: string) => {
+      const commandInfo = commands.find(c => c.command === command);
+
+      const userMessage = createMessage(
+        commandInfo?.surname ?? command,
+        'user',
+      );
+
+      const assistantMessage = createMessage('', 'assistant');
+
+      addMessage(userMessage);
+      addMessage(assistantMessage);
+
+      setGenerating(true);
+
+      try {
+        const response = await executeLocalCommand(command);
+
+        await fakeStream(response, chunk => {
+          updateMessage(assistantMessage.id, chunk);
+        });
+      } catch {
+        updateMessage(assistantMessage.id, 'Erro ao executar comando.');
+      } finally {
+        setGenerating(false);
+      }
+    },
+    [addMessage, updateMessage, executeLocalCommand, fakeStream, commands],
+  );
+
+  const handlePrompt = useCallback((value: string) => {
+    setPrompt(value);
+
+    if (value.startsWith('/')) {
+      setShowCommands(true);
+      return;
+    }
+
+    setShowCommands(false);
+  }, []);
 
   const sendMessage = useCallback(async () => {
     if (!prompt.trim()) {
       return;
     }
 
-    setLoadState('Preparando modelo...');
+    const text = prompt.trim();
 
-    const _prompt = prompt.trim();
+    const history = registerHistory(messages);
 
-    const history = messages
-      .filter(message => message.content.trim())
-      .slice(-20)
-      .map(message => ({
-        role: message.role,
-        content: message.content,
-        createdAt: new Date().toISOString(),
-      }));
+    const userMessage = createMessage(text, 'user');
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: _prompt,
-    };
-
-    const assistantId = `${Date.now()}-assistant`;
-
-    const assistantMessage: Message = {
-      id: assistantId,
-      role: 'assistant',
-      content: '',
-    };
+    const assistantMessage = createMessage('', 'assistant');
 
     setGenerating(true);
 
@@ -126,24 +205,26 @@ console.log(content)
 
     setPrompt('');
 
-    setLoadState('Preparando modelo...');
-
-    modelRef.current = await initialize();
-
     try {
+      setLoadState('Preparando modelo...');
+
+
+  modelRef.current = await initialize();
+
+
       setLoadState('Gerando resposta...');
 
-      await chat(modelRef.current, history, _prompt, chunk => {
-        updateMessage(assistantId, chunk);
+      await chat(modelRef.current, history, text, chunk => {
+        updateMessage(assistantMessage.id, chunk);
       });
-    } catch (err) {
-      console.error('Erro geração:', err);
-
-      updateMessage(assistantId, 'Erro ao gerar resposta.');
+    } catch {
+      updateMessage(assistantMessage.id, 'Erro ao gerar resposta.');
     } finally {
       setGenerating(false);
+      setLoadState('');
     }
-  }, [prompt, messages, addMessage, updateMessage, chat]);
+  }, [prompt, messages, addMessage, updateMessage, initialize, chat]);
+
   return {
     handlePrompt,
     initialize,
@@ -153,6 +234,13 @@ console.log(content)
     messages,
     sendMessage,
     loading,
+    commands,
+    showCommands,
+    stopGeneration,
+    placeHolderInput,
+    setPlaceHolderInput,
+    executeCommand,
+    fakeStream
   };
 };
 

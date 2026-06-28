@@ -4,14 +4,14 @@ import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 // @ts-ignore
 import appConfig from '../business/appConfig.json';
 
-import Btn_component from '@/components/buttons/Btn_component.tsx';
-import Paper_component from '@/components/paper/Paper.tsx';
+import BtnComponent from '@/components/buttons/BtnComponent.tsx';
+import PaperComponent from '@/components/paper/Paper.tsx';
 
 const PresentationScreen = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
   const style = functionStyles(insets);
   return (
-    <Paper_component>
+    <PaperComponent>
       <Image source={require('../assets/logo.png')} style={style.logo_image} />
 
       <Text style={style.text_title}>{appConfig.title_app}</Text>
@@ -19,7 +19,7 @@ const PresentationScreen = ({ navigation }: any) => {
       <Text style={style.text}>" {appConfig.labelDescription} "</Text>
       <Text style={style.text}>" {appConfig.description} "</Text>
 
-      <Btn_component
+      <BtnComponent
         text="Começar"
         navigation={navigation}
         navigationPath="Introduction"
@@ -27,14 +27,14 @@ const PresentationScreen = ({ navigation }: any) => {
         btn_text_type="white"
       />
 
-      <Btn_component
+      <BtnComponent
         text="Pular"
         navigation={navigation}
         navigationPath="Home"
         variant="normal"
         btn_text_type="gray"
       />
-    </Paper_component>
+    </PaperComponent>
   );
 };
 const functionStyles = (insets: EdgeInsets) =>

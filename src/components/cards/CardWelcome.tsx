@@ -11,7 +11,7 @@ const CardWelcome = () => {
 
 
 
-
+console.log(user)
   const dateText = now.toLocaleDateString('pt-BR', {
     weekday: 'long',
     day: '2-digit',
@@ -58,28 +58,29 @@ const CardWelcome = () => {
     </View>
   );
 };
-const styles = (isDayTime:boolean) => StyleSheet.create({
-  container: {
-    marginBottom: 24,
-
-    padding: 16,
-    backgroundColor: '#FFF',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  boxRoundedIcon: {
-    width: 35,
-    height: 35,
-    borderRadius: 26,
-    backgroundColor: isDayTime ? '#FFF7E0' : '#EEF2FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const styles = (isDayTime: boolean) =>
+  StyleSheet.create({
+    container: {
+      marginBottom: 24,
+      paddingHorizontal: 16,
+      paddingVertical: 20,
+      backgroundColor: '#FFF',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      elevation: 3,
+      shadowColor: '#000',
+      shadowOpacity: 0.08,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 2 },
+    },
+    boxRoundedIcon: {
+      width: 35,
+      height: 35,
+      borderRadius: 26,
+      backgroundColor: isDayTime ? '#FFF7E0' : '#EEF2FF',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  });
 export default CardWelcome;

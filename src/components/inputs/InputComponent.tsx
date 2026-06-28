@@ -39,7 +39,7 @@ export interface Input_props extends TextInputProps {
   error?:string
 }
 
-const Input_component = (props: Input_props) => {
+const InputComponent = (props: Input_props) => {
   const {
     value,
     setValue,
@@ -219,4 +219,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default Input_component;
+export default InputComponent;
