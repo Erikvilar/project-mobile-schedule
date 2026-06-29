@@ -23,6 +23,7 @@ export class Profile extends Model {
   @text('website') website!: string;
   @text('location') location!: string;
   @text('phone') phone!: string;
+  @text('theme') theme!:string;
   @readonly @date('created_at') createdAt!: Date;
   @readonly @date('updated_at') updatedAt!: Date;
   @relation('users', 'user_id')

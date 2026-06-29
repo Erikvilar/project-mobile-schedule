@@ -12,8 +12,10 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DashboardScreen from './DashboardScreen.tsx';
-import SettingsScreen from '@/screens/SettingsScreen.tsx';
 import NotesScreen from "@/screens/NoteScreen.tsx";
+import { DEFAULT_THEME, THEMES } from '@/theme/constants';
+import ProfileSettingsScreen from '@/screens/ProfileSettingsScreen.tsx';
+
 
 interface Tab {
   key: string;
@@ -29,8 +31,9 @@ const MemoizedNote = memo(NotesScreen)
 
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
+  const theme = DEFAULT_THEME;
+  const styles = stylesBase(theme);
   const [activeTab, setActiveTab] = useState(0);
-  const [isGenerating, setIsGenerating] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const screenWidth = Dimensions.get('window').width;
 
@@ -93,7 +96,7 @@ const HomeScreen = () => {
       icon: 'information-circle-outline',
       iconFocused: 'information-circle',
       title: 'About',
-      component: <SettingsScreen />,
+      component: <ProfileSettingsScreen />,
     },
   ];
 
@@ -155,57 +158,82 @@ const HomeScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const stylesBase = (theme:any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
+
   content: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
+
   tabBar: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.surfaceContainerLow,
+
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    minHeight: 70,
+    borderTopColor: 'rgba(255,255,255,0.08)',
+
+    minHeight: 76,
+
+    shadowColor: theme.colors.primaryContainer,
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    elevation: 12,
   },
+
   tabContainer: {
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
   },
+
   tabButton: {
-    flex: 1,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
-    minHeight: 70,
   },
+
   tabButtonActive: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
+    backgroundColor: theme.colors.surfaceContainer,
+
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+
+    shadowColor: theme.colors.primaryContainer,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
   },
+
   tabIcon: {
-    marginBottom: 4,
+    marginBottom: 0,
   },
+
   indicator: {
     position: 'absolute',
-    bottom: 0,
-    left: 8,
-    right: 8,
-    height: 2,
-    backgroundColor: '#000',
-    borderRadius: 1,
+    bottom: 6,
+
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+
+    backgroundColor: theme.colors.secondaryContainer,
   },
+
   centerContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },

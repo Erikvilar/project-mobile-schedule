@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import useAnimations from '@/hooks/useAnimations.ts';
 import { Animated, Image, Text, View } from 'react-native';
-import BtnComponent from '@/components/buttons/BtnComponent.tsx';
 import Icon from 'react-native-vector-icons/Ionicons';
+
+import BtnComponent from '@/components/buttons/BtnComponent';
+import useAnimations from '@/hooks/useAnimations';
+import { DEFAULT_THEME } from '@/theme/constants';
+
+const theme = DEFAULT_THEME;
+
 const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
   const [showImage, setShowImage] = useState(false);
 
@@ -14,10 +19,8 @@ const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
     containerOpacityAnim,
     containerSlideAnim,
     iconOpacityAnim,
-    fadeAnim
+    fadeAnim,
   } = useAnimations(image, showImage, setShowImage);
-
-
 
   return (
     <Animated.View
@@ -26,7 +29,8 @@ const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
         transform: [{ translateY: containerSlideAnim }],
       }}
     >
-      <View style={{ marginBottom: 10,marginTop: 10 }}>
+      {/* Header */}
+      <View>
         <View
           style={{
             flexDirection: 'row',
@@ -37,68 +41,90 @@ const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
         >
           <View
             style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: '#000',
+              width: 42,
+              height: 42,
+              borderRadius: 21,
+              backgroundColor: theme.colors.primary,
               justifyContent: 'center',
               alignItems: 'center',
             }}
           >
-            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>
+            <Text
+              style={{
+                color: theme.colors.onPrimary,
+                fontWeight: '700',
+                fontSize: 16,
+              }}
+            >
               2
             </Text>
           </View>
+
           <View>
-            <Text style={{ fontSize: 16, fontWeight: '600', color: '#000' }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: '700',
+                color: theme.colors.text,
+              }}
+            >
               Foto de Perfil
+            </Text>
+
+            <Text
+              style={{
+                fontSize: 14,
+                color: theme.colors.textSecondary,
+                marginTop: 2,
+              }}
+            >
+              Escolha uma imagem para personalizar sua conta.
             </Text>
           </View>
         </View>
 
+        {/* Progress */}
         <View
           style={{
-            height: 2,
-            backgroundColor: '#E8E8E8',
-            borderRadius: 1,
+            height: 6,
+            backgroundColor: theme.colors.surfaceContainerHighest,
+            borderRadius: 999,
             overflow: 'hidden',
           }}
         >
           <Animated.View
             style={{
-              height: '100%',
               width: '100%',
-              backgroundColor: '#000',
-              borderRadius: 1,
+              height: '100%',
+              backgroundColor: theme.colors.primary,
+              borderRadius: 999,
             }}
           />
         </View>
       </View>
 
+      {/* Avatar */}
       <Animated.View
         style={{
           alignItems: 'center',
+          marginTop: 40,
           opacity: imageOpacityAnim,
           transform: [{ scale: imageScaleAnim }],
         }}
       >
         <View
           style={{
-            width: 160,
-            height: 160,
-            borderRadius: 80,
-            marginTop: 30,
-            backgroundColor: '#F5F5F5',
+            width: 170,
+            height: 170,
+            borderRadius: 85,
+            backgroundColor: theme.colors.surfaceContainer,
             justifyContent: 'center',
             alignItems: 'center',
-            borderWidth: 2,
-            borderColor: image ? '#000' : '#E0E0E0',
             overflow: 'hidden',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 12 },
-            shadowOpacity: 0.15,
-            shadowRadius: 16,
-            elevation: 10,
+            borderWidth: 3,
+            borderColor: image
+              ? theme.colors.primary
+              : theme.colors.outlineVariant,
           }}
         >
           {image ? (
@@ -113,45 +139,59 @@ const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
             <Animated.View
               style={{
                 opacity: iconOpacityAnim,
-                justifyContent: 'center',
-                alignItems: 'center',
               }}
             >
-              <Icon name="person" size={60} color="#BDBDBD" />
+              <Icon name="person" size={72} color={theme.colors.outline} />
             </Animated.View>
           )}
         </View>
 
+        <Text
+          style={{
+            marginTop: 20,
+            color: theme.colors.textSecondary,
+            textAlign: 'center',
+            lineHeight: 22,
+            paddingHorizontal: 20,
+          }}
+        >
+          {image
+            ? 'Sua foto está pronta.'
+            : 'Adicione uma foto para tornar sua experiência mais pessoal.'}
+        </Text>
+
         {showImage && (
           <Animated.Text
             style={{
-              marginTop: 16,
-              color: '#000',
+              marginTop: 12,
+              color: theme.colors.primary,
+              fontWeight: '700',
               fontSize: 14,
-              fontWeight: '600',
             }}
           >
-            Foto carregada
+            ✓ Foto carregada
           </Animated.Text>
         )}
       </Animated.View>
 
-
+      {/* Buttons */}
       <Animated.View
         style={{
           gap: 12,
+          marginTop: 40,
           opacity: fadeAnim,
           transform: [{ scale: scaleAnim }, { translateY: slideAnim }],
         }}
       >
         <BtnComponent
-          text="Galeria"
+          text="Escolher da Galeria"
           variant="primary"
           onPress={openGallery}
           btn_text_type="white"
         />
+
         <BtnComponent
-          text="Câmera"
+          text="Abrir Câmera"
           variant="outline"
           onPress={openCamera}
           btn_text_type="colored"
@@ -161,6 +201,7 @@ const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
       {showImage && (
         <Animated.View
           style={{
+            marginTop: 24,
             opacity: fadeAnim.interpolate({
               inputRange: [0, 1],
               outputRange: [1, 0],
@@ -179,20 +220,18 @@ const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
                 }),
               },
             ],
-            marginTop: 20,
           }}
         >
-          <View style={{ position: 'absolute', top: -100, left: 50 }}>
-            <BtnComponent
-              text="Finalizar Cadastro"
-              variant="primary"
-              onPress={onContinue}
-              btn_text_type="white"
-            />
-          </View>
+          <BtnComponent
+            text="Finalizar Cadastro"
+            variant="primary"
+            onPress={onContinue}
+            btn_text_type="white"
+          />
         </Animated.View>
       )}
     </Animated.View>
   );
 };
+
 export default SecondScreen;

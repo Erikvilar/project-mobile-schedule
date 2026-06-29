@@ -13,7 +13,7 @@ export const profileSchema = tableSchema({
     { name: 'website', type: 'string', isOptional: true },
     { name: 'location', type: 'string', isOptional: true },
     { name: 'phone', type: 'string', isOptional: true },
-
+    {name: 'theme', type:'string', isOptional:true},
     // Datas
     { name: 'created_at', type: 'number' },
     { name: 'updated_at', type: 'number' },

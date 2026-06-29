@@ -39,7 +39,7 @@ __tests__
 .bundle
 android/app/.cxx
 android/app/build
-
+src/assets/models
 # node.js
 #
 node_modules/

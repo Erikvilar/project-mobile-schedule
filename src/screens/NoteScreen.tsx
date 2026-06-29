@@ -14,6 +14,8 @@ import {
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import useNote from '@/hooks/useNote';
+import { DEFAULT_THEME, THEMES } from '@/theme/constants.ts';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 interface Note {
   id: string;
@@ -32,14 +34,6 @@ interface Note {
   updated_at?: number;
 }
 
-const NOTE_COLORS = [
-  '#FFFFFF',
-  '#FFF9C4',
-  '#E8F5E9',
-  '#E3F2FD',
-  '#F3E5F5',
-  '#FFDAD6',
-];
 
 interface NoteCardProps {
   note: Note;
@@ -47,6 +41,8 @@ interface NoteCardProps {
 }
 
 function NoteCard({ note, onPress }: NoteCardProps) {
+
+
   return (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -166,7 +162,16 @@ function renderNote(
 
 export default function NotesScreen() {
   const { createNote, getAllNotes, updateNote } = useNote();
-
+  const theme = DEFAULT_THEME;
+  const themeNotes = THEMES.CyberElegancy;
+  const NOTE_COLORS = [
+    themeNotes.colors.surfaceContainerLow,
+    themeNotes.colors.surfaceContainer,
+    themeNotes.colors.surfaceContainerHigh,
+    themeNotes.colors.surfaceContainerHighest,
+    themeNotes.colors.card,
+    themeNotes.colors.primaryContainer,
+  ];
   const [notes, setNotes] = useState<Note[]>([]);
   const [search, setSearch] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -323,7 +328,7 @@ export default function NotesScreen() {
     <View
       style={{
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
       }}
     >
       {/* HEADER */}
@@ -331,53 +336,39 @@ export default function NotesScreen() {
         style={{
           paddingHorizontal: 16,
           paddingVertical: 12,
-          backgroundColor: '#fff',
+          backgroundColor: theme.colors.surfaceContainerLow,
           borderBottomWidth: 1,
-          borderBottomColor: '#e5e7eb',
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.05,
-          shadowRadius: 2,
-          elevation: 2,
+          borderBottomColor: theme.colors.outlineVariant,
         }}
       >
         <View
           style={{
-            height: 44,
-            borderRadius: 12,
-            borderColor: '#e5e7eb',
+            height: 48,
+            borderRadius: 18,
             borderWidth: 1,
-            backgroundColor: '#f9fafb',
+            borderColor: theme.colors.outlineVariant,
+            backgroundColor: theme.colors.surfaceContainer,
             flexDirection: 'row',
             alignItems: 'center',
-            paddingHorizontal: 12,
+            paddingHorizontal: 14,
           }}
         >
-          <Pressable
-            onPress={() => setDrawerOpen(true)}
-            style={({ pressed }) => ({
-              padding: 8,
-              borderRadius: 8,
-              backgroundColor: pressed ? '#f3f4f6' : 'transparent',
-              marginRight: 8,
-            })}
-          >
-            <MaterialIcons name="menu" size={22} color="#1f2937" />
-          </Pressable>
-
-          <MaterialIcons name="search" size={20} color="#9ca3af" />
+          <MaterialIcons
+            name="search"
+            size={20}
+            color={theme.colors.onSurfaceVariant}
+          />
 
           <TextInput
             value={search}
             onChangeText={setSearch}
             placeholder="Buscar notas..."
-            placeholderTextColor="#d1d5db"
+            placeholderTextColor={theme.colors.outline}
             style={{
               flex: 1,
               marginLeft: 10,
-              color: '#1f2937',
+              color: theme.colors.onSurface,
               fontSize: 14,
-              fontWeight: '500',
             }}
           />
 
@@ -389,148 +380,64 @@ export default function NotesScreen() {
                 opacity: pressed ? 0.7 : 1,
               })}
             >
-              <MaterialIcons name="close" size={18} color="#9ca3af" />
+              <MaterialIcons
+                name="close"
+                size={18}
+                color={theme.colors.onSurfaceVariant}
+              />
             </Pressable>
           )}
         </View>
       </View>
 
-      {/* DRAWER */}
-      <Modal
-        visible={drawerOpen}
-        animationType="none"
-        transparent
-        onRequestClose={() => setDrawerOpen(false)}
-      >
-        <Animated.View
-          style={{
-            flex: 1,
-            backgroundColor: fadeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.5)'],
-            }),
-          }}
-        >
-          <Pressable style={{ flex: 1 }} onPress={() => setDrawerOpen(false)}>
-            <Animated.View
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: '75%',
-                backgroundColor: '#fff',
-                paddingTop: 24,
-                shadowColor: '#000',
-                shadowOffset: { width: 2, height: 0 },
-                shadowOpacity: 0.15,
-                shadowRadius: 8,
-                elevation: 8,
-                transform: [
-                  {
-                    translateX: slideAnim,
-                  },
-                ],
-              }}
-            >
-              <View
-                style={{
-                  paddingHorizontal: 20,
-                  marginBottom: 24,
-                }}
-              >
-                <View
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 24,
-                    backgroundColor: '#3b82f6',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginBottom: 12,
-                  }}
-                >
-                  <MaterialIcons name="note" size={28} color="#fff" />
-                </View>
-
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: '700',
-                    color: '#1f2937',
-                    marginBottom: 2,
-                  }}
-                >
-                  NotesApp
-                </Text>
-
-                <Text
-                  style={{
-                    fontSize: 13,
-                    color: '#9ca3af',
-                    fontWeight: '500',
-                  }}
-                >
-                  usuario@email.com
-                </Text>
-              </View>
-
-              <View
-                style={{
-                  height: 1,
-                  backgroundColor: '#e5e7eb',
-                  marginHorizontal: 16,
-                  marginBottom: 16,
-                }}
-              />
-
-              <ScrollView
-                style={{ flex: 1 }}
-                showsVerticalScrollIndicator={false}
-              >
-                {drawerItems.map((item, index) => (
-                  <Pressable
-                    key={index}
-                    onPress={() => handleDrawerAction(item.action)}
-                    style={({ pressed }) => ({
-                      paddingHorizontal: 16,
-                      paddingVertical: 12,
-                      marginHorizontal: 8,
-                      borderRadius: 8,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      backgroundColor: pressed ? '#f3f4f6' : 'transparent',
-                    })}
-                  >
-                    <MaterialIcons
-                      name={item.icon as any}
-                      size={22}
-                      color="#6b7280"
-                      style={{
-                        marginRight: 14,
-                      }}
-                    />
-
-                    <Text
-                      style={{
-                        fontSize: 15,
-                        color: '#374151',
-                        fontWeight: '500',
-                      }}
-                    >
-                      {item.label}
-                    </Text>
-                  </Pressable>
-                ))}
-              </ScrollView>
-            </Animated.View>
-          </Pressable>
-        </Animated.View>
-      </Modal>
-
       {/* LISTA */}
       {filteredNotes.length === 0 ? (
-        <EmptyState />
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingHorizontal: 32,
+          }}
+        >
+          <View
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 40,
+              backgroundColor: theme.colors.surfaceContainer,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: 20,
+            }}
+          >
+            <MaterialIcons
+              name="description"
+              size={40}
+              color={theme.colors.primary}
+            />
+          </View>
+
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: '700',
+              color: theme.colors.onSurface,
+            }}
+          >
+            Nenhuma nota ainda
+          </Text>
+
+          <Text
+            style={{
+              marginTop: 8,
+              textAlign: 'center',
+              color: theme.colors.onSurfaceVariant,
+            }}
+          >
+            Crie sua primeira nota tocando no botão +
+          </Text>
+        </View>
       ) : (
         <FlatList
           data={filteredNotes}
@@ -548,22 +455,27 @@ export default function NotesScreen() {
 
       {/* FAB */}
       <TouchableOpacity
-        activeOpacity={0.8}
+        activeOpacity={0.85}
         onPress={openCreateModal}
         style={{
           position: 'absolute',
           bottom: 30,
           right: 20,
-          width: 60,
-          height: 60,
-          borderRadius: 30,
-          backgroundColor: '#000',
+          width: 62,
+          height: 62,
+          borderRadius: 31,
+          backgroundColor: theme.colors.primaryContainer,
           justifyContent: 'center',
           alignItems: 'center',
-          elevation: 8,
+          borderWidth: 1,
+          borderColor: theme.colors.primary,
         }}
       >
-        <MaterialIcons name="add" size={30} color="#FFF" />
+        <MaterialIcons
+          name="add"
+          size={30}
+          color={theme.colors.onPrimaryContainer}
+        />
       </TouchableOpacity>
 
       {/* MODAL */}
@@ -582,16 +494,18 @@ export default function NotesScreen() {
         <View
           style={{
             flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.25)',
+            backgroundColor: 'rgba(0,0,0,0.65)',
             justifyContent: 'flex-end',
           }}
         >
           <View
             style={{
-              backgroundColor: '#FFF',
+              backgroundColor: theme.colors.surfaceContainerHigh,
               borderTopLeftRadius: 32,
               borderTopRightRadius: 32,
               padding: 24,
+              borderTopWidth: 1,
+              borderColor: theme.colors.outlineVariant,
             }}
           >
             <View
@@ -605,6 +519,7 @@ export default function NotesScreen() {
                 style={{
                   fontSize: 24,
                   fontWeight: '700',
+                  color: theme.colors.onSurface,
                 }}
               >
                 {editingNote ? 'Editar Nota' : 'Nova Nota'}
@@ -619,7 +534,11 @@ export default function NotesScreen() {
                   setSelectedColor(NOTE_COLORS[0]);
                 }}
               >
-                <MaterialIcons name="close" size={24} />
+                <MaterialIcons
+                  name="close"
+                  size={24}
+                  color={theme.colors.onSurface}
+                />
               </TouchableOpacity>
             </View>
 
@@ -627,9 +546,11 @@ export default function NotesScreen() {
               value={title}
               onChangeText={setTitle}
               placeholder="Título"
+              placeholderTextColor={theme.colors.outline}
               style={{
                 fontSize: 20,
                 fontWeight: '600',
+                color: theme.colors.onSurface,
                 marginBottom: 16,
               }}
             />
@@ -639,10 +560,12 @@ export default function NotesScreen() {
               onChangeText={setContent}
               multiline
               placeholder="O que você está pensando?"
+              placeholderTextColor={theme.colors.outline}
               style={{
                 minHeight: 180,
                 textAlignVertical: 'top',
                 fontSize: 16,
+                color: theme.colors.onSurface,
               }}
             />
 
@@ -659,14 +582,17 @@ export default function NotesScreen() {
                   key={color}
                   onPress={() => setSelectedColor(color)}
                   style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 16,
+                    width: 34,
+                    height: 34,
+                    borderRadius: 17,
                     backgroundColor: color,
                     marginRight: 12,
                     marginBottom: 12,
                     borderWidth: selectedColor === color ? 2 : 0,
-                    borderColor: '#000',
+                    borderColor:
+                      selectedColor === color
+                        ? theme.colors.primary
+                        : 'transparent',
                   }}
                 />
               ))}
@@ -675,17 +601,17 @@ export default function NotesScreen() {
             <TouchableOpacity
               onPress={saveNote}
               style={{
-                backgroundColor: '#000',
-                height: 52,
-                borderRadius: 26,
+                backgroundColor: theme.colors.primaryContainer,
+                height: 54,
+                borderRadius: 27,
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
             >
               <Text
                 style={{
-                  color: '#FFF',
-                  fontWeight: '600',
+                  color: theme.colors.onPrimaryContainer,
+                  fontWeight: '700',
                   fontSize: 16,
                 }}
               >

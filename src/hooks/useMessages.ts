@@ -10,26 +10,12 @@ interface Message {
 }
 
 export const useMessages = () => {
-  const { user } = useUsers();
+
 
   const [messages, setMessages] = useState<Message[]>([]);
 
   const messagesRef = useRef<Message[]>([]);
 
-  useEffect(() => {
-    if (!user || messagesRef.current.length) {
-      return;
-    }
-
-    const welcome: Message = {
-      id: 'welcome',
-      role: 'assistant',
-      content: `${isDayTime ? 'Bom dia' : 'Boa noite'} ${user}, sou Seiko.`,
-    };
-
-    messagesRef.current = [welcome];
-    setMessages([welcome]);
-  }, [user]);
 
   const addMessage = useCallback((message: Message) => {
     messagesRef.current.push(message);

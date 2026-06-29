@@ -4,21 +4,23 @@ import HomeScreen from '../screens/HomeScreen.tsx';
 import PresentationScreen from '../screens/PresentationScreen.tsx';
 import IntroductionScreen from "@/screens/IntroductionScreen.tsx";
 import LoadAppScreen from '@/screens/LoadAppScreen.tsx';
+import useUsers from '@/hooks/useUsers.ts';
 
 enableScreens(true);
 
 const Stack = createNativeStackNavigator();
 
 
-export const SCREEN_PRESENTATION = 'Introduction';
 
 const Routes = () => {
 
+  const {user} = useUsers();
 
 
+  console.log('user',user)
   return (
     <Stack.Navigator
-      initialRouteName="LoadApp"
+      initialRouteName={ "LoadApp"}
       screenOptions={{
         headerShown: false,
         freezeOnBlur: true,
@@ -43,10 +45,8 @@ const Routes = () => {
         name="Introduction"
         component={IntroductionScreen}
         options={{
-          headerShown: true,
-
-          title: '',
           headerShadowVisible: false,
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

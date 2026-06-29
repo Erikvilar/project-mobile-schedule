@@ -12,13 +12,15 @@ import useIA from '@/hooks/useIA.ts';
 
 
 
+import { DEFAULT_THEME } from '@/theme/constants';
 const LoadAppScreen = () => {
   const navigation = useNavigation();
-  const { initialize } = useIA();
+  const { sincronize,progress } = useIA();
   const spinAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const loadingBarAnim = useRef(new Animated.Value(0)).current;
-
+  const theme = DEFAULT_THEME;
+  const styles = stylesBase(theme);
   // Pulsing aura animations
   useEffect(() => {
     Animated.loop(
@@ -66,7 +68,7 @@ const LoadAppScreen = () => {
   useEffect(() => {
     const loadModel = async () => {
       try {
-
+        await sincronize();
         setTimeout(() => {
           navigation.replace('Home');
         }, 1000);
@@ -76,7 +78,7 @@ const LoadAppScreen = () => {
     };
 
     loadModel();
-  }, [initialize, navigation]);
+  }, [sincronize, navigation]);
 
   const scale1 = spinAnim.interpolate({
     inputRange: [0, 1],
@@ -131,7 +133,7 @@ const LoadAppScreen = () => {
           />
 
           {/* Logo Text */}
-          <Text style={styles.title}>Seiko</Text>
+          <Text style={styles.title}>Etheria</Text>
         </View>
 
         {/* Initialization Sequence */}
@@ -162,84 +164,94 @@ const LoadAppScreen = () => {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Inicializando módulo local...</Text>
+        <Text style={styles.footerText}>Inicializando módulo local... {progress} %</Text>
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const stylesBase = (theme:any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9ff',
+    backgroundColor: theme.colors.background,
   },
+
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
   },
+
   logoContainer: {
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 48,
+    marginBottom: 56,
   },
+
   aura1: {
     position: 'absolute',
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: '#dce2f3',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: '#BD00FF20',
   },
+
   aura2: {
     position: 'absolute',
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#e2e8f8',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#00EEFC20',
   },
+
   title: {
-    fontSize: 32,
+    fontSize: 44,
     fontWeight: '700',
-    color: '#000000',
-    letterSpacing: -0.02,
-    zIndex: 10,
+    color: theme.colors.onBackground,
+    letterSpacing: -1.5,
+    textShadowColor: '#BD00FF60',
+    textShadowRadius: 18,
   },
+
   initSequence: {
     alignItems: 'center',
-    gap: 16,
   },
+
   loadingBarContainer: {
-    width: 48,
-    height: 2,
-    backgroundColor: '#dce2f3',
-    borderRadius: 1,
+    width: 120,
+    height: 4,
+    borderRadius: 999,
     overflow: 'hidden',
+    backgroundColor: theme.colors.surfaceContainerHighest,
+    marginBottom: 18,
   },
+
   loadingBar: {
-    width: '33%',
+    width: 40,
     height: '100%',
-    backgroundColor: '#000000',
-    borderRadius: 1,
+    backgroundColor: theme.colors.secondaryContainer,
+    borderRadius: 999,
   },
+
   message: {
     fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '400',
-    color: '#4c4546',
+    color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
+    lineHeight: 24,
   },
+
   footer: {
-    paddingBottom: 20,
+    paddingBottom: 32,
     alignItems: 'center',
   },
+
   footerText: {
     fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.02,
+    color: theme.colors.outline,
+    letterSpacing: 1,
     fontWeight: '500',
-    color: '#7e7576',
   },
 });
 

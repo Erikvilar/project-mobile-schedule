@@ -1,5 +1,16 @@
-import {  Text, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  Text,
+  Image,
+  StyleSheet,
+  View,
+  ScrollView,
+  Animated,
+  Dimensions,
+} from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@react-navigation/native';
+import { DEFAULT_THEME, Theme } from '@/theme/constants';
 
 // @ts-ignore
 import appConfig from '../business/appConfig.json';
@@ -7,66 +18,139 @@ import appConfig from '../business/appConfig.json';
 import BtnComponent from '@/components/buttons/BtnComponent.tsx';
 import PaperComponent from '@/components/paper/Paper.tsx';
 
+
+
 const PresentationScreen = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
-  const style = functionStyles(insets);
+  const theme = DEFAULT_THEME
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [scaleAnim] = useState(new Animated.Value(0.95));
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, scaleAnim]);
+
+  const styles = functionStyles(insets, theme);
+
   return (
-    <PaperComponent>
-      <Image source={require('../assets/logo.png')} style={style.logo_image} />
+    <View style={styles.container}>
+      <Animated.View
+        style={[
+          styles.content,
+          {
+            opacity: fadeAnim,
+            transform: [{ scale: scaleAnim }],
+          },
+        ]}
+      >
+          <Image source={require('../assets/logo.png')} style={styles.logo} />
+        <View>
+          <View style={styles.buttons}>
+            <BtnComponent
+              text="Começar"
+              navigation={navigation}
+              navigationPath="Introduction"
+              variant="secondary"
+              btn_text_type="black"
+            />
 
-      <Text style={style.text_title}>{appConfig.title_app}</Text>
+            <BtnComponent
+              text="Pular"
+              navigation={navigation}
+              navigationPath="Home"
+              variant="normal"
+              btn_text_type="gray"
+            />
+          </View>
+        </View>
 
-      <Text style={style.text}>" {appConfig.labelDescription} "</Text>
-      <Text style={style.text}>" {appConfig.description} "</Text>
-
-      <BtnComponent
-        text="Começar"
-        navigation={navigation}
-        navigationPath="Introduction"
-        variant="primary"
-        btn_text_type="white"
-      />
-
-      <BtnComponent
-        text="Pular"
-        navigation={navigation}
-        navigationPath="Home"
-        variant="normal"
-        btn_text_type="gray"
-      />
-    </PaperComponent>
+        {/* Bottom */}
+        <View style={styles.privacyContainer}>
+          <View style={styles.privacyDot} />
+          <Text style={styles.privacyText}>Inteligência 100% Offline</Text>
+        </View>
+      </Animated.View>
+    </View>
   );
 };
-const functionStyles = (insets: EdgeInsets) =>
+
+const functionStyles = (insets: EdgeInsets, theme: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#fff',
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingTop: insets.top,
-      paddingBottom: insets.bottom,
+      backgroundColor: theme.colors.background,
+      paddingTop: insets.top + 24,
+      paddingBottom: insets.bottom + 24,
+      paddingHorizontal: 24,
     },
-    logo_image: {
-      width: '80%',
-      height: '30%',
-      marginBottom: 40,
+
+    content: {
+      flex: 1,
+      justifyContent: 'space-between',
+    },
+
+    logoSection: {
+      alignItems: 'center',
+      paddingTop: 40,
+    },
+
+    logo: {
+      width: '100%',
+      paddingTop: 40,
+      height: '60%',
       resizeMode: 'contain',
     },
-    text_title: {
-      fontSize: 28,
-      fontWeight: '700',
-      color: '#000',
-      marginBottom: 10,
-      textAlign: 'center',
+
+    centerSection: {
+      alignItems: 'center',
+      justifyContent: 'center',
     },
-    text: {
-      fontSize: 14,
-      fontWeight: '500',
-      color: '#000',
-      marginBottom: 10,
+
+    label: {
+      fontSize: 17,
+      fontWeight: '600',
+      color: theme.colors.primary,
       textAlign: 'center',
+      marginBottom: 12,
+    },
+
+
+
+    buttons: {
+      width: '100%',
+      gap: 14,
+    },
+
+    privacyContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingBottom: 12,
+    },
+
+    privacyDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 2,
+      backgroundColor: theme.colors.primaryContainer,
+      marginRight: 8,
+    },
+
+    privacyText: {
+      color: theme.colors.textSecondary,
+      fontSize: 12,
+      fontFamily: 'JetBrains Mono',
     },
   });
 export default PresentationScreen;

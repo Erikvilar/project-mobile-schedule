@@ -11,7 +11,25 @@ interface Message {
   content: string;
 }
 
-const useIA = () => {
+const useIA: () => {
+  handlePrompt: (value: string) => void;
+  initialize: () => Promise<any>;
+  prompt: string;
+  loadState: string;
+  generating: boolean;
+  messages: Message[];
+  sendMessage: () => Promise<void>;
+  loading: boolean;
+  commands: ({ id: number; command: string; name: string; surname: string; placeHolderInfo: string })[];
+  showCommands: boolean;
+  stopGeneration: () => Promise<void>;
+  placeHolderInput: string;
+  setPlaceHolderInput: (value: (((prevState: string) => string) | string)) => void;
+  progress: number;
+  executeCommand: (command: string) => Promise<void>;
+  fakeStream: (text: string, onChunk: (value: string) => void) => Promise<void>,
+  sincronize:()=>Promise<void>;
+} = () => {
   const [loading, setLoading] = useState(false);
 
   const [prompt, setPrompt] = useState('');
@@ -25,6 +43,7 @@ const useIA = () => {
   const [placeHolderInput, setPlaceHolderInput] = useState(
     'Digite uma mensagem...',
   );
+  const [progress, setProgress] = useState(0);
 
   const modelRef = useRef<any>(null);
 
@@ -62,7 +81,9 @@ const useIA = () => {
     try {
       setLoading(true);
 
-      return await mlcProvider.init();
+      return await mlcProvider.init((percentage)=>{
+        setProgress(percentage);
+      });
     } finally {
       setLoading(false);
     }
@@ -72,6 +93,18 @@ const useIA = () => {
     try {
       await mlcProvider.stopGeneration();
     } catch {}
+  }, [mlcProvider]);
+
+  const sincronize = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      return await mlcProvider.syncronize(percentage => {
+        setProgress(percentage);
+      });
+    } finally {
+      setLoading(false);
+    }
   }, [mlcProvider]);
 
   const chat = useCallback(
@@ -239,8 +272,10 @@ ${note.content}`,
     stopGeneration,
     placeHolderInput,
     setPlaceHolderInput,
+    progress,
     executeCommand,
-    fakeStream
+    fakeStream,
+    sincronize
   };
 };
 

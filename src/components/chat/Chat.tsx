@@ -13,7 +13,7 @@ import {Message} from "@/database/models/Messages.ts";
 import CardChatMessage from "@/components/cards/CardChatMessage.tsx";
 
 
-
+import {DEFAULT_THEME} from "@/theme/constants";
 const renderListCommands = (
   showCommands: boolean,
   handlePrompt: (prompt: string) => void,
@@ -33,7 +33,7 @@ const renderListCommands = (
   if (showCommands) {
 
     return (
-      <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'row',padding:12 }}>
         <FlatList
           scrollEnabled={true}
           showsHorizontalScrollIndicator={false}
@@ -69,6 +69,8 @@ const renderListCommands = (
 const Chat = () => {
   const flatListRef = useRef<FlatList>(null);
 
+
+    const theme = DEFAULT_THEME;
   const {
     handlePrompt,
     prompt,
@@ -95,69 +97,113 @@ const Chat = () => {
 
 
 
-  return (
-    <View style={{ flex: 1, backgroundColor: '#FFF' }}>
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
-        onContentSizeChange={() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }}
-      />
-
-
+    return (
       <View
         style={{
-          flexDirection: 'row',
-          padding: 12,
-          borderTopWidth: 0.2,
-          borderTopColor: '#E5E7EB',
-          alignItems: 'center',
+          flex: 1,
+          backgroundColor: theme.colors.background,
         }}
       >
-        <TextInput
-          value={prompt}
-          onChangeText={handlePrompt}
-          placeholder={placeHolderInput}
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            borderColor: '#D1D5DB',
-            borderRadius: 24,
-            paddingHorizontal: 16,
-            marginRight: 8,
-            height: 48,
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={{
+            padding: 20,
+          }}
+          onContentSizeChange={() => {
+            flatListRef.current?.scrollToEnd({
+              animated: true,
+            });
           }}
         />
 
-        <TouchableOpacity
-          onPress={() => {
-            if (generating) {
-              stopGeneration();
-              return;
-            }
-            sendMessage();
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginHorizontal: 16,
+            marginBottom: 12,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+
+            backgroundColor: theme.colors.surfaceContainerLow,
+
+            borderRadius: 28,
+
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.08)',
           }}
         >
-          <Text>{generating ? 'Parar' : 'Enviar'}</Text>
-        </TouchableOpacity>
+          <TextInput
+            value={prompt}
+            onChangeText={handlePrompt}
+            placeholder={placeHolderInput}
+            placeholderTextColor={theme.colors.textSecondary}
+            style={{
+              flex: 1,
+              color: theme.colors.text,
+              fontSize: 16,
+              paddingVertical: 0,
+            }}
+          />
+
+          <TouchableOpacity
+            onPress={() => {
+              if (generating) {
+                stopGeneration();
+                return;
+              }
+
+              sendMessage();
+            }}
+            style={{
+              width: 42,
+              height: 42,
+              borderRadius: 21,
+
+              backgroundColor: generating
+                ? theme.colors.errorContainer
+                : theme.colors.primaryContainer,
+
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginLeft: 12,
+            }}
+          >
+            <Text
+              style={{
+                color: generating
+                  ? theme.colors.error
+                  : theme.colors.onPrimaryContainer,
+                fontWeight: '600',
+              }}
+            >
+              {generating ? '■' : '➜'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {showCommands && (
+          <View
+            style={{
+              paddingHorizontal: 16,
+              paddingBottom: 16,
+              backgroundColor: theme.colors.background,
+            }}
+          >
+            {renderListCommands(
+              showCommands,
+              handlePrompt,
+              commands,
+              setPlaceHolderInput,
+              executeCommand,
+            )}
+          </View>
+        )}
       </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          padding: 12,
-          borderTopWidth: 0.2,
-          borderTopColor: '#E5E7EB',
-          alignItems: 'center',
-        }}
-      >
-        {renderListCommands(showCommands,handlePrompt,commands,setPlaceHolderInput,executeCommand)}
-      </View>
-    </View>
-  );
+    );
 };
 
 export default Chat;

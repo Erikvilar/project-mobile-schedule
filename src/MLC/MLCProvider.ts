@@ -1,5 +1,5 @@
 
-import { mlc } from '@react-native-ai/mlc';
+import { mlc, MLCEngine} from '@react-native-ai/mlc';
 import { ModelRepository } from '@/database/repository/ModelRepository';
 import { AgenteService } from '@/MLC/AgenteService';
 import MemoryModule from '@/native/MemoryModule';
@@ -30,9 +30,11 @@ export class MLCProvider {
         await model.prepare();
         return model;
       }
-
+      console.log("MODEL",model)
+      console.log("MODEL NOT INSTALL...")
       await model.download(event => {
         onProgress?.(event.percentage);
+        console.log(event.percentage);
       });
 
       await model.prepare();
@@ -53,7 +55,30 @@ export class MLCProvider {
 
     this.currentReader = undefined;
   }
+  public async syncronize(onProgress?: (percentage: number) => void){
+    try{
+      const currentModel = await this.modelRepository.getCurrentModel();
+      const model = mlc.languageModel(MODEL_DEFAULT);
+      console.log(await MLCEngine.getModels());
+      if (currentModel?.prepared != 'true') {
+        console.log('MODEL', model);
+        console.log('MODEL NOT INSTALL...');
+        await model.download(event => {
+          onProgress?.(event.percentage);
+          console.log(event.percentage);
+        });
+        await this.modelRepository.insertModel(MODEL_DEFAULT, 'true');
+      }
 
+      console.log('MODEL INSTALL...');
+
+
+      }
+      catch (error) {
+      console.log(error)
+  }
+
+  }
 
 
 

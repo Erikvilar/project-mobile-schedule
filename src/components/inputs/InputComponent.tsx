@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import { ReactNode } from 'react';
+import { DEFAULT_THEME } from '@/theme/constants.ts';
 
 export interface Input_props extends TextInputProps {
   value: string;
@@ -45,7 +46,7 @@ const InputComponent = (props: Input_props) => {
     setValue,
     placeholder,
     variant = 'primary',
-    text_type = 'black',
+    text_type = 'white',
     disabled = false,
     label,
     error,
@@ -56,7 +57,8 @@ const InputComponent = (props: Input_props) => {
     labelContainerStyle,
     ...rest
   } = props;
-
+  const theme = DEFAULT_THEME;
+  const style = styleBase(theme)
   const getInputStyle = () => {
     const variants = {
       primary: style.input_primary,
@@ -123,7 +125,7 @@ const InputComponent = (props: Input_props) => {
   );
 };
 
-const style = StyleSheet.create({
+const styleBase = (theme:any) => StyleSheet.create({
   container: {
     width: '100%',
     marginTop: 16,
@@ -142,27 +144,28 @@ const style = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
+    color: theme.colors.text,
   },
 
-  // ===== INPUT VARIANTS =====
-
   input_primary: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surfaceContainerLow,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: theme.colors.outlineVariant,
+    color: theme.colors.text,
     fontSize: 16,
   },
 
   input_secondary: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.surfaceContainer,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: '#dcdcdc',
+    borderColor: theme.colors.outlineVariant,
+    color: theme.colors.text,
     fontSize: 16,
   },
 
@@ -171,8 +174,9 @@ const style = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    borderWidth: 2,
-    borderColor: '#000',
+    borderWidth: 1,
+    borderColor: theme.colors.primaryContainer,
+    color: theme.colors.text,
     fontSize: 16,
   },
 
@@ -181,41 +185,39 @@ const style = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
+    color: theme.colors.text,
     fontSize: 16,
   },
 
   input_danger: {
-    backgroundColor: '#FFF5F5',
+    backgroundColor: theme.colors.errorContainer,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: '#FF6B6B',
+    borderColor: theme.colors.error,
+    color: theme.colors.onErrorContainer,
     fontSize: 16,
   },
 
-  // ===== TEXT TYPES =====
-
   text_gray: {
-    color: '#777',
+    color: theme.colors.textSecondary,
   },
 
   text_white: {
-    color: '#fff',
+    color: theme.colors.text,
   },
 
   text_black: {
-    color: '#000',
+    color: theme.colors.text,
   },
 
   text_colored: {
-    color: '#6C5CE7',
+    color: theme.colors.primaryContainer,
   },
 
-  // ===== STATES =====
-
   disabled: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
 });
 

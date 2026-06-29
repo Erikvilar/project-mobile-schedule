@@ -12,8 +12,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import useMedia from '@/hooks/useMedia.ts';
 import useUsers from '@/hooks/useUsers.ts';
 import SecondScreen from "@/screens/introduction/SecondScreen.tsx";
-import Paper from "@/components/paper/Paper.tsx";
+
 import FirstScreen from "@/screens/introduction/FirstScreen.tsx";
+import { DEFAULT_THEME } from '@/theme/constants.ts';
 
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,7 +22,7 @@ const validateEmail = (email: string): boolean => {
 };
 
 const IntroductionScreen = ({ navigation }: any) => {
-
+  const theme = DEFAULT_THEME;
   const [user, setUser] = useState({
     id: '',
     name: '',
@@ -72,24 +73,23 @@ const IntroductionScreen = ({ navigation }: any) => {
     setImage(undefined);
   };
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: () =>
-        indexStep > 1 ? (
-          <TouchableOpacity
-            style={{
-              marginTop:10,
-              padding: 10,
-              borderRadius: 10,
-              backgroundColor: '#F5F5F5',
-            }}
-            onPress={goBackStep}
-          >
-            <Icon name="chevron-back" size={24} color="#000" />
-          </TouchableOpacity>
-        ) : null,
-    });
-  }, [navigation, indexStep]);
+  const RenderHeader = ()=>(
+    <TouchableOpacity
+      style={{
+        marginTop: 10,
+        padding: 10,
+        marginLeft: 10,
+        borderRadius: 10,
+        width: '15%',
+        backgroundColor: theme.colors.surfaceContainerHigh,
+      }}
+      onPress={() =>
+        indexStep === 1 ? navigation.navigate('Presentation') : goBackStep()
+      }
+    >
+      <Icon name="chevron-back" size={24} color={theme.colors.onSurface} />
+    </TouchableOpacity>
+)
 
   const navigateNextStep = async () => {
     if (!validateEmail(user.email)) {
@@ -169,6 +169,7 @@ const IntroductionScreen = ({ navigation }: any) => {
             setUser={handleSetName}
             email={user.email}
             age={user.age}
+            validateEmail={validateEmail}
             setAge={handleSetAge}
             setEmail={handleSetEmail}
             incrementStep={navigateNextStep}
@@ -191,30 +192,66 @@ const IntroductionScreen = ({ navigation }: any) => {
   };
 
   return (
-    <Paper>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{ width: '100%',marginTop:10 }}>
+    <View
+      style={{
+        flex: 1,
+
+        backgroundColor: theme.colors.background,
+      }}
+    >
+      <RenderHeader/>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          backgroundColor: theme.colors.background,
+          paddingHorizontal:10,
+          paddingTop: 24,
+
+        }}
+      >
+        <View
+
+        >
           <Text
             style={{
-              fontSize: 28,
-              fontWeight: '800',
-              color: '#000',
-              marginBottom: 8,
-
+              fontSize: 30,
+              fontWeight: '700',
+              color: theme.colors.text,
+              marginBottom: 12,
+              letterSpacing: -0.5,
             }}
           >
-            {indexStep === 1 ? 'Bem-vindo!' : 'Quase lá!'}
+            {indexStep === 1 ? 'Bem-vindo' : 'Quase lá'}
           </Text>
-          <Text style={{ fontSize: 15, color: '#999', lineHeight: 22 }}>
 
+          <Text
+            style={{
+              fontSize: 15,
+              color: theme.colors.textSecondary,
+              lineHeight: 24,
+            }}
+          >
             {indexStep === 1
-              ? 'Precisamos de algumas informações para criar sua conta'
-              : 'Escolha uma foto de perfil para completar seu cadastro'}
+              ? 'Precisamos de algumas informações para personalizar sua experiência offline.'
+              : 'Escolha uma foto de perfil para concluir sua configuração inicial.'}
           </Text>
         </View>
-        {renderStep()}
+
+        <View
+          style={{
+
+            backgroundColor: theme.colors.surfaceContainerLow,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: theme.colors.outlineVariant,
+            padding: 24,
+          }}
+        >
+          {renderStep()}
+        </View>
+
       </ScrollView>
-    </Paper>
+    </View>
   );
 };
 
