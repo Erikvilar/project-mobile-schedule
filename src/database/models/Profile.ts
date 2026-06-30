@@ -24,6 +24,7 @@ export class Profile extends Model {
   @text('location') location!: string;
   @text('phone') phone!: string;
   @text('theme') theme!:string;
+  @text('logged') logged!:string;
   @readonly @date('created_at') createdAt!: Date;
   @readonly @date('updated_at') updatedAt!: Date;
   @relation('users', 'user_id')

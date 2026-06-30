@@ -9,20 +9,21 @@ import {
   Dimensions,
 } from 'react-native';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '@react-navigation/native';
-import { DEFAULT_THEME, Theme } from '@/theme/constants';
+
+import {  Theme } from '@/theme/constants';
 
 // @ts-ignore
 import appConfig from '../business/appConfig.json';
 
 import BtnComponent from '@/components/buttons/BtnComponent.tsx';
 import PaperComponent from '@/components/paper/Paper.tsx';
+import { CURRENT_THEME } from '@/theme/ThemeManager.ts';
 
 
 
 const PresentationScreen = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
-  const theme = DEFAULT_THEME
+  const theme = CURRENT_THEME
   const [fadeAnim] = useState(new Animated.Value(0));
   const [scaleAnim] = useState(new Animated.Value(0.95));
 

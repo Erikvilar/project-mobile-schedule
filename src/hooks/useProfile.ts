@@ -2,7 +2,7 @@ import { useMemo, useState, useCallback } from 'react';
 import { UserRepository } from '@/database/repository/UserRepository';
 
 export interface ProfileInterface {
-  userId: string;
+  userId: number;
   bio: string;
   image: string;
   avatar_url: string | undefined;
@@ -16,15 +16,14 @@ export interface ProfileInterface {
 
 const useProfile = () => {
   const repository = useMemo(() => new UserRepository(), []);
+
   const [profile, setProfile] = useState<ProfileInterface | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Busca o perfil do usuário
-   */
+
   const getProfile = useCallback(
-    async (userId: string): Promise<ProfileInterface | null> => {
+    async (userId: number): Promise<ProfileInterface | null> => {
       try {
         setLoading(true);
         setError(null);
@@ -47,12 +46,20 @@ const useProfile = () => {
     [repository],
   );
 
-  /**
-   * Atualiza o perfil do usuário
-   */
+  const getCurrentProfile = async () =>{
+    try{
+      const userProfile = await repository.getAllProfile();
+      const profileCurrent = userProfile[0]?._raw;
+      setProfile(profileCurrent);
+      return profileCurrent
+    }catch (error){
+      console.log(error);
+    }
+  }
+
   const updateProfile = useCallback(
     async (
-      userId: string,
+      userId: number,
       profileData: Partial<ProfileInterface>,
     ): Promise<boolean> => {
       try {
@@ -87,7 +94,7 @@ const useProfile = () => {
    * Atualiza a foto do perfil
    */
   const updateProfileImage = useCallback(
-    async (userId: string, imageUri: string): Promise<boolean> => {
+    async (userId: number, imageUri: string): Promise<boolean> => {
       return updateProfile(userId, {
         image: imageUri,
         avatar_url: imageUri,
@@ -111,11 +118,13 @@ const useProfile = () => {
    */
   const updateBasicInfo = useCallback(
     async (
-      userId: string,
+      userId: number,
       data: {
+        id?:string
         bio?: string;
         website?: string;
         phone?: string;
+        theme?:string;
         location?: string;
       },
     ): Promise<boolean> => {
@@ -142,6 +151,7 @@ const useProfile = () => {
     updateTheme,
     updateBasicInfo,
     clearProfile,
+    getCurrentProfile,
   };
 };
 

@@ -29,6 +29,7 @@ export class User extends Model {
   @text('name') name!: string;
   @text('email') email!: string;
   @field('age') age!: number;
+
   @children('profile')
   profile!: Query<Profile>;
   @children('memories')

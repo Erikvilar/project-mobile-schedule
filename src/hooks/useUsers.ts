@@ -12,7 +12,7 @@ const useUsers = () => {
     name: string;
     email: string;
     age: number;
-    profile?: { userId: string; avatar_url: string | undefined };
+    profile?: { userId: string; avatar_url: string | undefined; logged:string };
   }): Promise<string | null> => {
     try {
       setLoading(true);
@@ -30,19 +30,24 @@ const useUsers = () => {
         setError(errorMsg);
         return errorMsg;
       }
-
-      await repository.create(userData);
+      const user = {
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+      }
+      await repository.create(user);
 
       if (userData.profile) {
         await repository.createProfile({
-          userId: userData.id,
+          userId: user.id,
           bio: '',
           image: userData.profile.avatar_url || '',
           avatar_url: userData.profile.avatar_url,
           website: '',
           phone: '',
           location: '',
-          theme: 'dark-tech',
+          theme: '',
+          logged: 'true'
         });
       }
 
@@ -76,6 +81,15 @@ const useUsers = () => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email.trim());
   };
+
+  const getUser = async () => {
+    try{
+      const currentUser  = await repository.getAll();
+      return currentUser[0]?._raw;
+    }catch(error){
+      console.log(error)
+    }
+  }
 
   const getCurrentUser = async () => {
     try {
@@ -222,6 +236,7 @@ const useUsers = () => {
     getExistentUsers,
     getCurrentUser,
     getUserById,
+    getUser,
     getUserByEmail,
     updateUser,
     deleteUser,

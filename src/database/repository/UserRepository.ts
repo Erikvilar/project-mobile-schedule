@@ -21,6 +21,9 @@ export class UserRepository {
   async getAll(): Promise<any[]> {
     return await this.usersDb.getAll();
   }
+  async getAllProfile (): Promise<any[]> {
+    return await this.profileDb.getAll();
+  }
 
   async findByEmailOrId(
     value: string,
@@ -42,7 +45,7 @@ export class UserRepository {
     await this.usersDb.update(userId, data);
   }
 
-  async deleteUser(userId: string): Promise<void> {
+  async deleteUser(userId: number): Promise<void> {
     const profile = await this.findProfileByUserId(userId);
     if (profile) {
       await this.deleteProfile(userId);
@@ -52,25 +55,26 @@ export class UserRepository {
 
   async createProfile(profileData: any): Promise<void> {
     const dataToCreate = {
-      user_id: profileData.userId,
+      userId: profileData.userId,
       bio: profileData.bio || '',
       image: profileData.image || '',
       avatar_url: profileData.avatar_url || '',
       website: profileData.website || '',
       location: profileData.location || '',
       phone: profileData.phone || '',
-      theme: profileData.theme || 'dark-tech',
+      theme: profileData.theme ,
+      logged:profileData.logged || '',
     };
     await this.profileDb.create(dataToCreate);
   }
 
-  async findProfileByUserId(userId: string): Promise<any | null> {
+  async findProfileByUserId(userId: number): Promise<any | null> {
     const records = await this.profileDb.getAll();
     const profile = records.find((p: any) => p.user_id === userId);
     return profile || null;
   }
 
-  async updateProfile(userId: string, profileData: any): Promise<void> {
+  async updateProfile(userId: number, profileData: any): Promise<void> {
     const profile = await this.findProfileByUserId(userId);
     if (!profile) {
       await this.createProfile({ userId, ...profileData });
@@ -79,7 +83,7 @@ export class UserRepository {
     await this.profileDb.update(profile.id, profileData);
   }
 
-  async deleteProfile(userId: string): Promise<void> {
+  async deleteProfile(userId: number): Promise<void> {
     const profile = await this.findProfileByUserId(userId);
     if (profile) {
       await this.profileDb.delete(profile.id);

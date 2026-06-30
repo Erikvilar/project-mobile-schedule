@@ -1,10 +1,20 @@
-.PHONY: help install start clean outdated run-android run-ios pull-db export-db check status sync-db delete-db
+.PHONY: help install start clean outdated run-android run-ios pull-db export-db check status sync-db delete-db clean-db clean-android logs dev info watch-db
 
 APP_PACKAGE := com.project_mobile
 APP_NAME := project_mobile
+
 DB_NAME ?= seikohealthdb
-DOWNLOAD_DIR := /sdcard/Download
+SYNC_INTERVAL ?= 10
+
+# Diretório local onde os backups serão salvos
 LOCAL_DIR := db_backup
+
+# Arquivos do banco
+DB_FILE := $(DB_NAME).db
+DB_SHM := $(DB_NAME).db-shm
+DB_WAL := $(DB_NAME).db-wal
+
+ADB := adb
 DEVICE ?= default
 
 help:
@@ -21,31 +31,31 @@ help:
 	@echo   python gen.py util nomeutil
 	@echo.
 	@echo DEPENDENCIAS:
-	@echo   make install              Instala dependencias
-	@echo   make outdated             Mostra pacotes desatualizados
+	@echo   make install
+	@echo   make outdated
 	@echo.
 	@echo EXECUTAR APP:
-	@echo   make start                Inicia Metro Bundler
-	@echo   make run-android          Roda no Android
-	@echo   make run-ios              Roda no iOS
+	@echo   make start
+	@echo   make run-android
+	@echo   make run-ios
 	@echo.
 	@echo BANCO DE DADOS:
 	@echo   make pull-db DB_NAME=seu_banco
 	@echo   make export-db DB_NAME=seu_banco
 	@echo   make delete-db DB_NAME=seu_banco
-	@echo   make sync-db              Sincroniza banco a cada 10s
-	@echo   make check                Verifica arquivos do banco
-	@echo   make status               Status do device
+	@echo   make sync-db
+	@echo   make watch-db
+	@echo   make check
+	@echo   make status
 	@echo.
 	@echo LIMPEZA:
-	@echo   make clean                Remove node_modules
-	@echo   make clean-db             Remove backups locais
-	@echo   make clean-android        Limpa gradle do Android
+	@echo   make clean
+	@echo   make clean-db
+	@echo   make clean-android
 	@echo.
 	@echo EXEMPLOS:
-	@echo   python gen.py repository UserRepository
-	@echo   python gen.py screen HomeScreen
-	@echo   python gen.py service AuthService
+	@echo   make pull-db DB_NAME=seikohealthdb
+	@echo   make sync-db DB_NAME=seikohealthdb SYNC_INTERVAL=2
 	@echo.
 
 install:
@@ -69,52 +79,73 @@ run-ios:
 	@echo [*] Rodando app no iOS...
 	npx react-native run-ios
 
-copy-to-sdcard:
-	@echo [*] Copiando $(DB_NAME).db para SD Card...
-	@adb shell "run-as $(APP_PACKAGE) cp $(DB_NAME).db $(DOWNLOAD_DIR)/$(DB_NAME).db" 2>nul || echo [!] Erro ao copiar
-
-pull-db: copy-to-sdcard
+pull-db:
 	@if not exist $(LOCAL_DIR) mkdir $(LOCAL_DIR)
-	@echo [*] Puxando $(DB_NAME) do device...
-	adb pull $(DOWNLOAD_DIR)/$(DB_NAME).db $(LOCAL_DIR)/$(DB_NAME).db
-	adb pull $(DOWNLOAD_DIR)/$(DB_NAME).db-shm $(LOCAL_DIR)/$(DB_NAME).db-shm 2>nul || echo [*] Arquivo shm nao encontrado
-	adb pull $(DOWNLOAD_DIR)/$(DB_NAME).db-wal $(LOCAL_DIR)/$(DB_NAME).db-wal 2>nul || echo [*] Arquivo wal nao encontrado
+
+	@echo [*] Baixando $(DB_NAME)...
+
+	@$(ADB) exec-out run-as $(APP_PACKAGE) cat $(DB_FILE) > $(LOCAL_DIR)/$(DB_FILE)
+
+	@$(ADB) exec-out run-as $(APP_PACKAGE) cat $(DB_SHM) > $(LOCAL_DIR)/$(DB_SHM) 2>nul || echo [*] Arquivo shm nao encontrado
+
+	@$(ADB) exec-out run-as $(APP_PACKAGE) cat $(DB_WAL) > $(LOCAL_DIR)/$(DB_WAL) 2>nul || echo [*] Arquivo wal nao encontrado
+
 	@echo.
-	@echo [OK] Banco de dados baixado em: $(LOCAL_DIR)/$(DB_NAME).db
+	@echo [OK] Banco salvo em $(LOCAL_DIR)
 	@echo.
 
-export-db:
-	@if not exist $(LOCAL_DIR) mkdir $(LOCAL_DIR)
-	@echo [*] Exportando $(DB_NAME)...
-	adb shell "run-as $(APP_PACKAGE) cat $(DB_NAME).db" > $(LOCAL_DIR)/$(DB_NAME).db
-	@echo [OK] Banco exportado para $(LOCAL_DIR)
+export-db: pull-db
 
 delete-db:
 	@echo [!] Deletando $(DB_NAME) do device...
-	adb shell "run-as $(APP_PACKAGE) rm $(DB_NAME).db" 2>nul || echo [*] Arquivo nao encontrado
+	@$(ADB) shell "run-as $(APP_PACKAGE) rm -f $(DB_FILE)"
+	@$(ADB) shell "run-as $(APP_PACKAGE) rm -f $(DB_SHM)"
+	@$(ADB) shell "run-as $(APP_PACKAGE) rm -f $(DB_WAL)"
 	@echo [OK] Banco deletado
-
 sync-db:
-	@echo [*] Sincronizando banco a cada 10 segundos...
-	@echo [*] Pressione Ctrl+C para parar
-:loop
-	@cls
-	@adb shell "run-as $(APP_PACKAGE) cp $(DB_NAME).db $(DOWNLOAD_DIR)/$(DB_NAME).db" >nul 2>&1
-	@adb pull $(DOWNLOAD_DIR)/$(DB_NAME).db $(LOCAL_DIR)/$(DB_NAME).db >nul 2>&1
-	@echo [OK] Sincronizado
-	@timeout /t 10 >nul
-	@goto loop
+	@$(MAKE) pull-db
+	@timeout /t $(SYNC_INTERVAL) >nul
+	@$(MAKE) sync-db
+
+sync-loop:
+	@echo.
+	@echo [%TIME%] Atualizando banco...
+
+	@$(ADB) exec-out run-as $(APP_PACKAGE) cat $(DB_FILE) > $(LOCAL_DIR)/$(DB_FILE)
+
+	@$(ADB) exec-out run-as $(APP_PACKAGE) cat $(DB_SHM) > $(LOCAL_DIR)/$(DB_SHM) 2>nul || echo [*] Arquivo shm nao encontrado
+
+	@$(ADB) exec-out run-as $(APP_PACKAGE) cat $(DB_WAL) > $(LOCAL_DIR)/$(DB_WAL) 2>nul || echo [*] Arquivo wal nao encontrado
+
+	@for %%A in ($(LOCAL_DIR)\$(DB_FILE)) do @echo DB : %%~zA bytes
+	@for %%A in ($(LOCAL_DIR)\$(DB_WAL)) do @echo WAL: %%~zA bytes
+
+	@timeout /t $(SYNC_INTERVAL) >nul
+	@goto sync-loop
+
+watch-db:
+	@$(MAKE) sync-db SYNC_INTERVAL=1 DB_NAME=$(DB_NAME)
 
 check:
-	@echo [*] Verificando arquivos do banco $(DB_NAME)...
-	@if exist $(LOCAL_DIR)\$(DB_NAME).db ( dir $(LOCAL_DIR)\$(DB_NAME).db* ) else ( echo [!] Nenhum arquivo encontrado )
+	@echo.
+	@echo ======================================================
+	@echo Arquivos locais de $(DB_NAME)
+	@echo ======================================================
+	@if exist $(LOCAL_DIR)\$(DB_FILE) (dir $(LOCAL_DIR)\$(DB_NAME).db*) else (echo [!] Nenhum arquivo encontrado)
+	@echo.
 
 status:
-	@echo [*] Verificando device...
-	adb devices
 	@echo.
-	@echo [*] Arquivos no device ($(DB_NAME)):
-	adb shell "run-as $(APP_PACKAGE) ls -lh $(DB_NAME).db*" 2>nul || echo [!] Nenhum arquivo encontrado
+	@echo ======================================================
+	@echo Device
+	@echo ======================================================
+	@$(ADB) devices
+	@echo.
+	@echo ======================================================
+	@echo Banco no device
+	@echo ======================================================
+	@$(ADB) shell "run-as $(APP_PACKAGE) ls -lh $(DB_NAME).db*" 2>nul || echo [!] Nenhum arquivo encontrado
+	@echo.
 
 clean:
 	@echo [*] Limpando node_modules...
@@ -145,10 +176,11 @@ info:
 	@echo ======================================================
 	@echo Informacoes do Projeto
 	@echo ======================================================
-	@echo App Package: $(APP_PACKAGE)
-	@echo App Name: $(APP_NAME)
-	@echo Banco Padrao: $(DB_NAME)
-	@echo Device: $(DEVICE)
+	@echo App Package : $(APP_PACKAGE)
+	@echo App Name    : $(APP_NAME)
+	@echo Banco       : $(DB_NAME)
+	@echo Intervalo   : $(SYNC_INTERVAL)s
+	@echo Device      : $(DEVICE)
 	@echo.
 	@node -v
 	@npm -v

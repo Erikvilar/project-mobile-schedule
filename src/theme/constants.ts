@@ -71,6 +71,7 @@ export type Theme = {
     card: string;
     text: string;
     textSecondary: string;
+    isDarkTheme:boolean
   };
 };
 
@@ -155,6 +156,7 @@ export const THEMES: Record<
       card: '#1f1f25',
       text: '#e4e1e9',
       textSecondary: '#d4c0d7',
+      isDarkTheme:true
     },
   },
 
@@ -226,6 +228,7 @@ export const THEMES: Record<
       card: '#FFFFFF',
       text: '#111111',
       textSecondary: '#6B7280',
+      isDarkTheme:false
     },
   },
 
@@ -297,6 +300,7 @@ export const THEMES: Record<
       card: '#201f20',
       text: '#e5e2e3',
       textSecondary: '#bac9cc',
+      isDarkTheme:true
     },
   },
 
@@ -354,6 +358,7 @@ export const THEMES: Record<
       card: '#3e3d32',
       text: '#f8f8f2',
       textSecondary: '#a6a6a6',
+      isDarkTheme:true
     },
   },
 
@@ -411,6 +416,7 @@ export const THEMES: Record<
       card: '#423f34',
       text: '#f8f8f2',
       textSecondary: '#b8b8b8',
+      isDarkTheme:true
     },
   },
 
@@ -468,6 +474,7 @@ export const THEMES: Record<
       card: '#44475a',
       text: '#f8f8f2',
       textSecondary: '#a1a1a1',
+      isDarkTheme:true
     },
   },
 
@@ -525,6 +532,7 @@ export const THEMES: Record<
       card: '#ffffff',
       text: '#1d1d1f',
       textSecondary: '#86868b',
+      isDarkTheme:false
     },
   },
 
@@ -582,6 +590,7 @@ export const THEMES: Record<
       card: '#111829',
       text: '#e3e8f3',
       textSecondary: '#8b92a9',
+      isDarkTheme:true
     },
   },
 
@@ -639,6 +648,7 @@ export const THEMES: Record<
       card: '#ffffff',
       text: '#374151',
       textSecondary: '#9ca3af',
+      isDarkTheme:false
     },
   },
 
@@ -696,11 +706,14 @@ export const THEMES: Record<
       card: '#f7f7f8',
       text: '#0d0d0d',
       textSecondary: '#565869',
+      isDarkTheme:false,
     },
   },
 };
 
 
-
-export const DEFAULT_THEME =
-  THEMES.monokaiTheme;
+export const THEMES_LIST = Object.entries(THEMES).map(([key, theme]) => ({
+  key,
+  name: theme.name,
+  isDark: theme.colors.isDarkTheme,
+}));

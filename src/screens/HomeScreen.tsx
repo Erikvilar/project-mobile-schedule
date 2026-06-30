@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, memo } from 'react';
+import { useState, useRef, useCallback, memo, useEffect } from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -13,8 +13,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DashboardScreen from './DashboardScreen.tsx';
 import NotesScreen from "@/screens/NoteScreen.tsx";
-import { DEFAULT_THEME, THEMES } from '@/theme/constants';
+import {  Theme, } from '@/theme/constants';
 import ProfileSettingsScreen from '@/screens/ProfileSettingsScreen.tsx';
+import { CURRENT_THEME, loadThemeFromDB } from '@/theme/ThemeManager.ts';
 
 
 interface Tab {
@@ -31,7 +32,7 @@ const MemoizedNote = memo(NotesScreen)
 
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
-  const theme = DEFAULT_THEME;
+  const theme:Theme = CURRENT_THEME;
   const styles = stylesBase(theme);
   const [activeTab, setActiveTab] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -46,6 +47,10 @@ const HomeScreen = () => {
     },
     [screenWidth]
   );
+
+
+
+
 
   const handleTabPress = useCallback(
     (index: number) => {
@@ -63,22 +68,17 @@ const HomeScreen = () => {
   const tabs: Tab[] = [
     {
       key: 'tab_home',
-      icon: 'rocket-outline',
-      iconFocused: 'rocket',
-      title: 'Home',
-      component: (
-        <MemoizedDashboard  />
-      ),
+      icon: 'hardware-chip-outline',
+      iconFocused: 'hardware-chip',
+      title: 'IA',
+      component: <MemoizedDashboard />,
     },
     {
       key: 'tab_menu',
       icon: 'menu-outline',
       iconFocused: 'menu',
       title: 'Menu',
-      component: (
-
-        <MemoizedNote/>
-      ),
+      component: <MemoizedNote />,
     },
     {
       key: 'tab_perfil',
@@ -121,7 +121,13 @@ const HomeScreen = () => {
                 <Icon
                   name={isActive ? tab.iconFocused : tab.icon}
                   size={18}
-                  color={isActive ? '#000' : '#999'}
+                  color={
+                    isActive
+                      ? theme.isDarkTheme
+                        ? '#000000'
+                        : '#FFFFFF'
+                      : theme.colors.onSurfaceVariant
+                  }
                   style={styles.tabIcon}
                 />
 
@@ -158,85 +164,81 @@ const HomeScreen = () => {
   );
 };
 
-const stylesBase = (theme:any) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-
-  content: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-
-  tabBar: {
-    backgroundColor: theme.colors.surfaceContainerLow,
-
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.08)',
-
-    minHeight: 76,
-
-    shadowColor: theme.colors.primaryContainer,
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    shadowOffset: {
-      width: 0,
-      height: -2,
+const stylesBase = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
     },
-    elevation: 12,
-  },
 
-  tabContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-  },
+    content: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
 
-  tabButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    tabBar: {
+      backgroundColor: theme.colors.surfaceContainerLowest,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.outlineVariant,
+      minHeight: 76,
 
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+      shadowColor: theme.isDarkTheme ? '#000' : theme.colors.onSurface,
 
-  tabButtonActive: {
-    backgroundColor: theme.colors.surfaceContainer,
+      shadowOpacity: theme.isDarkTheme ? 0.25 : 0.08,
+      shadowRadius: 16,
+      shadowOffset: {
+        width: 0,
+        height: -2,
+      },
+      elevation: 12,
+    },
 
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    tabContainer: {
+      width: '100%',
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+    },
 
-    shadowColor: theme.colors.primaryContainer,
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 6,
-  },
+    tabButton: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
-  tabIcon: {
-    marginBottom: 0,
-  },
+    tabButtonActive: {
+      backgroundColor: theme.colors.surfaceContainerHigh,
+      borderWidth: 1,
+      borderColor: theme.colors.outlineVariant,
+      shadowColor: theme.isDarkTheme ? '#000' : theme.colors.primary,
 
-  indicator: {
-    position: 'absolute',
-    bottom: 6,
+      shadowOpacity: theme.isDarkTheme ? 0.35 : 0.15,
+      shadowRadius: 12,
+      elevation: 8,
+    },
 
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    tabIcon: {
+      marginBottom: 0,
+    },
 
-    backgroundColor: theme.colors.secondaryContainer,
-  },
+    indicator: {
+      position: 'absolute',
+      bottom: 6,
+      width: 4,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: theme.colors.primary,
+    },
 
-  centerContainer: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+    centerContainer: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });
 
 export default HomeScreen;

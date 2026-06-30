@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 import { ReactNode } from 'react';
-import { DEFAULT_THEME } from '@/theme/constants.ts';
+import { CURRENT_THEME } from '@/theme/ThemeManager.ts';
 
 export interface Input_props extends TextInputProps {
   value: string;
@@ -57,7 +57,7 @@ const InputComponent = (props: Input_props) => {
     labelContainerStyle,
     ...rest
   } = props;
-  const theme = DEFAULT_THEME;
+  const theme = CURRENT_THEME;
   const style = styleBase(theme)
   const getInputStyle = () => {
     const variants = {

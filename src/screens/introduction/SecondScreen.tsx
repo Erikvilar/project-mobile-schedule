@@ -5,8 +5,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import BtnComponent from '@/components/buttons/BtnComponent';
 import useAnimations from '@/hooks/useAnimations';
 import { DEFAULT_THEME } from '@/theme/constants';
+import { CURRENT_THEME } from '@/theme/ThemeManager.ts';
 
-const theme = DEFAULT_THEME;
+const theme = CURRENT_THEME;
 
 const SecondScreen = ({ openGallery, openCamera, image, onContinue }: any) => {
   const [showImage, setShowImage] = useState(false);

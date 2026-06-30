@@ -4,6 +4,7 @@ import InputComponent from '@/components/inputs/InputComponent.tsx';
 import Icon from 'react-native-vector-icons/Ionicons';
 import BtnComponent from '@/components/buttons/BtnComponent.tsx';
 import { DEFAULT_THEME } from '@/theme/constants';
+import { CURRENT_THEME } from '@/theme/ThemeManager.ts';
 
 const FirstScreen = ({
   user,
@@ -16,7 +17,7 @@ const FirstScreen = ({
   errors,
   validateEmail,
 }: any) => {
-  const theme = DEFAULT_THEME;
+  const theme = CURRENT_THEME;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const styles = stylesBase(theme);

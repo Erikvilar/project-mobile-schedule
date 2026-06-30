@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import useUsers from '@/hooks/useUsers';
 import { DEFAULT_THEME } from '@/theme/constants';
+import { CURRENT_THEME } from '@/theme/ThemeManager.ts';
 
-const theme = DEFAULT_THEME;
+const theme = CURRENT_THEME;
 const { width } = Dimensions.get('window');
 
 const now = new Date();

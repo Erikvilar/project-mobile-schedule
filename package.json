@@ -12,6 +12,7 @@
   "dependencies": {
     "@nozbe/watermelondb": "^0.28.0",
     "@react-native-ai/mlc": "^0.12.0",
+    "@react-native-picker/picker": "^2.11.4",
     "@react-native-vector-icons/ionicons": "13.1.2",
     "@react-navigation/bottom-tabs": "^7.16.1",
     "@react-navigation/native": "^7.1.17",

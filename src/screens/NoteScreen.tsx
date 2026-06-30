@@ -14,8 +14,9 @@ import {
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import useNote from '@/hooks/useNote';
-import { DEFAULT_THEME, THEMES } from '@/theme/constants.ts';
+import {THEMES } from '@/theme/constants.ts';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { CURRENT_THEME } from '@/theme/ThemeManager.ts';
 
 interface Note {
   id: string;
@@ -162,7 +163,7 @@ function renderNote(
 
 export default function NotesScreen() {
   const { createNote, getAllNotes, updateNote } = useNote();
-  const theme = DEFAULT_THEME;
+  const theme = CURRENT_THEME;
   const themeNotes = THEMES.CyberElegancy;
   const NOTE_COLORS = [
     themeNotes.colors.surfaceContainerLow,

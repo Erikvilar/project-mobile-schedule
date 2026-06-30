@@ -3,6 +3,7 @@ import { Message } from '@/database/models/Messages.ts';
 import { Text, View } from 'react-native';
 import CustomSpinner from '@/components/spinner/CustomSpinner.tsx';
 import { DEFAULT_THEME, THEMES } from '@/theme/constants.ts';
+import { CURRENT_THEME } from '@/theme/ThemeManager.ts';
 const CardChatMessage = memo(
   ({
     item,
@@ -14,7 +15,7 @@ const CardChatMessage = memo(
     thinking: string;
   }) => {
     const [thinkingPhrase, setThinkingPhrase] = useState('Pensando...');
-    const theme = DEFAULT_THEME;
+    const theme = CURRENT_THEME;
     useEffect(() => {
       setThinkingPhrase(thinking);
     }, [thinking]);

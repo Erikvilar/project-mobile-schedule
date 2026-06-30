@@ -13,13 +13,14 @@ import useIA from '@/hooks/useIA.ts';
 
 
 import { DEFAULT_THEME } from '@/theme/constants';
+import { CURRENT_THEME } from '@/theme/ThemeManager.ts';
 const LoadAppScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const { sincronize,progress } = useIA();
   const spinAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const loadingBarAnim = useRef(new Animated.Value(0)).current;
-  const theme = DEFAULT_THEME;
+  const theme = CURRENT_THEME;
   const styles = stylesBase(theme);
   // Pulsing aura animations
   useEffect(() => {

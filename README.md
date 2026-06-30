@@ -1,97 +1,337 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# EtherIA Intelligence IA
 
-# Getting Started
+<div align="center">
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+<img src="./src/assets/logo.png" width="180" alt="EtherIA Intelligence IA Logo"/>
 
-## Step 1: Start Metro
+### Plataforma de Produtividade e Inteligência Pessoal Offline
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+![Version](https://img.shields.io/badge/version-0.0.1-00E5FF)
+![React Native](https://img.shields.io/badge/React%20Native-0.83.3-61DAFB)
+![WatermelonDB](https://img.shields.io/badge/WatermelonDB-0.28.0-FF6B6B)
+![Platform](https://img.shields.io/badge/platform-Android-3DDC84)
+![Status](https://img.shields.io/badge/status-Development-yellow)
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+</div>
 
-```sh
-# Using npm
-npm start
+---
 
-# OR using Yarn
-yarn start
+# Sobre
+
+O **EtherIA Intelligence IA** é uma plataforma de produtividade e conhecimento pessoal desenvolvida para dispositivos móveis com foco em:
+
+* execução local;
+* privacidade;
+* organização pessoal;
+* persistência de dados;
+* experiência minimalista.
+
+A aplicação foi concebida seguindo a filosofia:
+
+> Seus dados pertencem exclusivamente a você.
+
+Todas as informações podem ser mantidas localmente no dispositivo, permitindo uma experiência independente de serviços externos.
+
+---
+
+# Principais Características
+
+* Aplicação Offline First
+* Persistência local de alta performance
+* Sistema de notas
+* Assistente conversacional local
+* Sistema de temas dinâmicos
+* Perfil de usuário
+* Arquitetura modular e extensível
+* Preparada para funcionalidades avançadas de conhecimento pessoal
+
+---
+
+# Funcionalidades
+
+## Perfil de Usuário
+
+* Cadastro inicial
+* Configuração de perfil
+* Foto de usuário
+* Preferências de tema
+* Persistência local
+
+---
+
+## Sistema de Notas
+
+* Criação de notas
+* Edição de notas
+* Pesquisa instantânea
+* Organização visual
+* Persistência local
+
+---
+
+## Assistente Conversacional
+
+* Chat local
+* Streaming de respostas
+* Sistema de comandos
+* Interrupção de geração
+* Interface otimizada para dispositivos móveis
+
+---
+
+## Sistema de Temas
+
+Temas atualmente disponíveis:
+
+* Cyber Elegancy
+* Minimalist
+* Tech-Noir Minimalist
+* Monokai
+* Monokai Pro
+* Dracula
+* Light Tech
+* Dark Tech
+* Soft Day
+* ChatGPT Theme
+
+---
+
+# Arquitetura
+
+```text
+src/
+├── assets/
+├── business/
+├── components/
+├── constants/
+├── database/
+│   ├── migrations/
+│   ├── models/
+│   ├── repositories/
+│   └── schema/
+├── hooks/
+├── navigation/
+├── screens/
+├── services/
+├── theme/
+├── types/
+└── utils/
 ```
 
-## Step 2: Build and run your app
+---
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+# Princípios do Projeto
 
-### Android
+## Offline First
 
-```sh
-# Using npm
+A aplicação foi desenvolvida para funcionar sem dependência de conexão permanente com a internet.
+
+## Privacidade
+
+As informações do usuário permanecem sob seu controle.
+
+## Performance
+
+A arquitetura prioriza desempenho e baixa utilização de recursos.
+
+## Simplicidade
+
+A interface segue um modelo minimalista com foco na produtividade.
+
+---
+
+# Stack Tecnológica
+
+## Mobile
+
+* React Native 0.83.3
+* TypeScript
+* React Navigation
+
+## Banco de Dados
+
+* WatermelonDB 0.28.0
+* SQLite
+
+## Interface
+
+* React Native Animated
+* React Native Vector Icons
+* React Native Safe Area Context
+
+## Arquitetura
+
+* Repository Pattern
+* Service Layer
+* Custom Hooks
+* Componentização Modular
+* Offline First
+
+---
+
+# Banco de Dados
+
+O projeto utiliza:
+
+```text
+WatermelonDB v0.28.0 + SQLite
+```
+
+Características:
+
+* alta performance;
+* consultas reativas;
+* persistência robusta;
+* preparado para sincronização futura;
+* otimizado para dispositivos móveis.
+
+---
+
+# Estrutura de Navegação
+
+```text
+Onboarding
+    ↓
+Dashboard
+    ↓
+Notas
+    ↓
+Perfil
+    ↓
+Assistente Conversacional
+```
+
+---
+
+# Roadmap
+
+## v0.1
+
+* Sistema de memória
+* Melhorias no chat
+* Organização avançada de notas
+
+## v0.2
+
+* Busca semântica
+* Vetores locais
+* Base de conhecimento pessoal
+
+## v0.3
+
+* Agentes inteligentes
+* Ferramentas locais
+* Automações
+
+## v1.0
+
+* Plataforma completa de conhecimento pessoal offline
+
+---
+
+# Status das Funcionalidades
+
+| Funcionalidade     | Status |
+| ------------------ | ------ |
+| Onboarding         | ✅      |
+| Perfil de Usuário  | ✅      |
+| Sistema de Temas   | ✅      |
+| Sistema de Notas   | ✅      |
+| Chat Local         | ✅      |
+| Dashboard          | ✅      |
+| Memória Contextual | 🚧     |
+| Busca Semântica    | 🚧     |
+| Vetorização        | 🚧     |
+| Agentes            | 🚧     |
+
+---
+
+# Desenvolvimento
+
+## Clonando o projeto
+
+```bash
+git clone https://github.com/seu-usuario/etheria-app.git
+cd etheria-app
+```
+
+## Instalando dependências
+
+```bash
+npm install
+```
+
+ou
+
+```bash
+yarn install
+```
+
+## Executando no Android
+
+```bash
 npm run android
+```
 
-# OR using Yarn
+ou
+
+```bash
 yarn android
 ```
 
-### iOS
+## Iniciando o Metro
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```bash
+npm start
 ```
 
-Then, and every time you update your native dependencies, run:
+ou
 
-```sh
-bundle exec pod install
+```bash
+yarn start
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+---
 
-```sh
-# Using npm
-npm run ios
+# Requisitos
 
-# OR using Yarn
-yarn ios
+* Node.js 20+
+* JDK 17+
+* Android Studio
+* Android SDK 35+
+* Gradle 8+
+* ADB configurado
+
+---
+
+# Versão Atual
+
+```text
+Application : EtherIA Intelligence IA
+Version     : 0.0.1
+Status      : Alpha
+Platform    : Android
+Architecture: Offline First
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+---
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+# Objetivo de Longo Prazo
 
-## Step 3: Modify your app
+O EtherIA Intelligence IA busca evoluir para uma plataforma de conhecimento pessoal capaz de oferecer:
 
-Now that you have successfully run the app, let's make changes!
+* memória contextual;
+* organização de informações;
+* automações locais;
+* ferramentas inteligentes;
+* gestão de conhecimento pessoal.
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+---
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+<div align="center">
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+### EtherIA Intelligence IA
 
-## Congratulations! :tada:
+Plataforma de Produtividade e Conhecimento Pessoal Offline
 
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+</div>

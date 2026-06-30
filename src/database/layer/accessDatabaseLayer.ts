@@ -79,7 +79,7 @@ export const update_ = async (tableName: string, id: string, data: any) => {
 };
 
 // ============ DELETE ============
-export const delete_ = async (tableName: string, id: string) => {
+export const delete_ = async (tableName: string, id: string|number) => {
   try {
     const collection = database.get(tableName);
     const record = await collection.find(id);

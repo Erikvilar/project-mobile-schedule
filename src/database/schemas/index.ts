@@ -1,7 +1,7 @@
 
 import { appSchema } from '@nozbe/watermelondb';
 import { userSchema } from './userSchema';
-import { appConfigSchema } from '@/database/schemas/appConfigSchema.ts';
+
 import { profileSchema } from '@/database/schemas/profileSchema.ts';
 import { memorySchema } from '@/database/schemas/memorySchema.ts';
 import { conversationSchema } from '@/database/schemas/conversationSchema.ts';
@@ -17,6 +17,6 @@ export const TABLE_MODEL = 'modelIA';
 export const TABLE_MESSAGE = 'message'
 export const TABLE_NOTE = 'note'
 export const mySchema = appSchema({
-  version: 4,
-  tables: [userSchema,profileSchema,memorySchema,modelSchema, conversationSchema, appConfigSchema,noteSchema],
+  version: 12,
+  tables: [userSchema,profileSchema,memorySchema,modelSchema, conversationSchema,noteSchema],
 });

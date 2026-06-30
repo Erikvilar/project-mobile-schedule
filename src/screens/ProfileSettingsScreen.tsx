@@ -12,24 +12,44 @@ import {
   Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import useUsers from '@/hooks/useUsers';
+import { Picker } from '@react-native-picker/picker';
 import useProfile from '@/hooks/useProfile';
-import { DEFAULT_THEME } from '@/theme/constants';
+import {  THEMES_LIST } from '@/theme/constants';
+import { CURRENT_THEME, loadThemeFromDB } from '@/theme/ThemeManager.ts';
+import useUsers from '@/hooks/useUsers.ts';
+import { Profile } from '@/database/models/Profile.ts';
+import { User } from '@/database/models';
+
 
 const { width } = Dimensions.get('window');
 
 const ProfileSettingsScreen = ({ navigation }: any) => {
-  const theme = DEFAULT_THEME;
-  const { user: userName } = useUsers();
-  const { profile, loading, updateBasicInfo } = useProfile();
+  const theme = CURRENT_THEME;
 
+
+  const { profile, loading, updateBasicInfo, getCurrentProfile } = useProfile();
+  const {getCurrentUser} = useUsers();
+  const [user,setUser]=useState<string>();
   const [profileData, setProfileData] = useState({
     bio: '',
     website: '',
     phone: '',
     location: '',
+    theme:'',
     image: '',
   });
+
+  useEffect(() => {
+    const init = async () => {
+      await getCurrentProfile();
+    const userCurrent=  await getCurrentUser();
+    setUser(userCurrent)
+    };
+    init();
+  }, []);
+  const [selectedTheme, setSelectedTheme] = useState(
+    profile?.theme || CURRENT_THEME.name
+  );
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,17 +61,22 @@ const ProfileSettingsScreen = ({ navigation }: any) => {
         phone: profile.phone || '',
         location: profile.location || '',
         image: profile.avatar_url || profile.image || '',
+        theme:profile.theme || '',
       });
+
+      setSelectedTheme(profile.theme || CURRENT_THEME.name);
     }
   }, [profile]);
+
 
   const handleSaveProfile = async () => {
     try {
       setIsLoading(true);
-      const success = await updateBasicInfo(userName, {
+      const success = await updateBasicInfo(profile?.userId!, {
         bio: profileData.bio,
         website: profileData.website,
         phone: profileData.phone,
+        theme:selectedTheme,
         location: profileData.location,
       });
       setIsLoading(false);
@@ -67,6 +92,12 @@ const ProfileSettingsScreen = ({ navigation }: any) => {
       Alert.alert('Erro', 'Erro ao atualizar o perfil');
     }
   };
+  useEffect(() => {
+    const loadTheme = async()=>{
+      await loadThemeFromDB();
+    }
+    loadTheme();
+  }, [handleSaveProfile]);
 
   if (loading) {
     return (
@@ -117,7 +148,7 @@ const ProfileSettingsScreen = ({ navigation }: any) => {
         </View>
 
         <Text style={[styles.userName, { color: theme.colors.onSurface }]}>
-          {userName || 'Usuário'}
+          { user|| 'Usuário'}
         </Text>
       </View>
 
@@ -216,6 +247,41 @@ const ProfileSettingsScreen = ({ navigation }: any) => {
               setProfileData(prev => ({ ...prev, location: text }))
             }
           />
+        </View>
+
+        <View
+          style={[
+            styles.inputContainer,
+            {
+              backgroundColor: theme.colors.surfaceContainer,
+              borderColor: theme.colors.outline,
+              paddingVertical: 0,
+            },
+          ]}
+        >
+          <Icon
+            name="color-palette"
+            size={18}
+            color={theme.colors.onSurfaceVariant}
+          />
+
+          <Picker
+            selectedValue={selectedTheme}
+            onValueChange={setSelectedTheme}
+            style={{
+              flex: 1,
+              color: theme.colors.onSurface,
+            }}
+            dropdownIconColor={theme.colors.onSurface}
+          >
+            {THEMES_LIST.map(item => (
+              <Picker.Item
+                key={item.name}
+                label={item.name}
+                value={item.key}
+              />
+            ))}
+          </Picker>
         </View>
       </View>
 

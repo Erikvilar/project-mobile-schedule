@@ -14,7 +14,7 @@ import useUsers from '@/hooks/useUsers.ts';
 import SecondScreen from "@/screens/introduction/SecondScreen.tsx";
 
 import FirstScreen from "@/screens/introduction/FirstScreen.tsx";
-import { DEFAULT_THEME } from '@/theme/constants.ts';
+import { CURRENT_THEME } from '@/theme/ThemeManager.ts';
 
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,7 +22,7 @@ const validateEmail = (email: string): boolean => {
 };
 
 const IntroductionScreen = ({ navigation }: any) => {
-  const theme = DEFAULT_THEME;
+  const theme = CURRENT_THEME;
   const [user, setUser] = useState({
     id: '',
     name: '',
@@ -149,6 +149,8 @@ const IntroductionScreen = ({ navigation }: any) => {
           avatar_url: image,
           website:'',
           phone:'',
+          theme:'',
+          logged:'true',
           created_at: Date.now().toLocaleString(),
         },
       };

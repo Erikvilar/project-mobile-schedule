@@ -29,7 +29,7 @@ export class DatabaseClient {
     return update_(this.table, id, data);
   }
 
-  async delete(id: string) {
+  async delete(id: string | number) {
     return delete_(this.table, id);
   }
 
